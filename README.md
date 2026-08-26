@@ -26,7 +26,7 @@ Want a public URL and a chat widget you can drop on your own website? Deploy to 
 click provisions everything the app needs, and the database schema applies itself during the
 build, so there is nothing to run by hand.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Frichipal%2Fkyzerdocs-lite&env=GEMINI_API_KEY%2CADMIN_PASSWORD&envDescription=Two+values+only+you+can+provide%3A+a+free+Gemini+API+key+and+an+admin+password+you+choose+for+signing+in.&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey&stores=%5B%7B%22type%22%3A%22blob%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Frichipal%2Fkyzerdocs-lite-template&env=GEMINI_API_KEY%2CADMIN_PASSWORD&envDescription=Two+values+only+you+can+provide%3A+a+free+Gemini+API+key+and+an+admin+password+you+choose+for+signing+in.&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey&stores=%5B%7B%22type%22%3A%22blob%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
 
 **What this actually costs you, in accounts:** two, and only two. You create a Vercel account —
 that's the click above. Inside that same flow, Vercel provisions a Neon Postgres database and a
