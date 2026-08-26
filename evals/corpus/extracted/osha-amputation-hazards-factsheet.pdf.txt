@@ -1,0 +1,165 @@
+What types of machine components are
+hazardous?
+The following types of mechanical components
+present amputation hazards:
+• Point of operation – the area of a machine
+where it performs work on material.
+• Power-transmission apparatuses – flywheels,
+pulleys, belts, chains, couplings, spindles, cams,
+and gears in addition to connecting rods and
+other machine components that transmit energy.
+• Other moving parts – machine components
+that move during machine operation such as
+reciprocating, rotating, and transverse moving
+parts as well as auxiliary machine parts.
+What kinds of mechanical motion are
+hazardous?
+All mechanical motion is potentially hazardous. In
+addition to in-running nip points (“pinch points”) –
+which occur when two parts move together and at
+least one moves in a rotary or circular motion that
+gears, rollers, belt drives, and pulleys generate – the
+following are the most common types of hazardous
+mechanical motion:
+• Rotating – circular movement of couplings,
+cams, clutches, flywheels, and spindles as well
+as shaft ends and rotating collars that may grip
+clothing or otherwise force a body part into a
+dangerous location.
+• Reciprocating – back-and-forth or up-and-
+down action that may strike or entrap a worker
+between a moving part and a fixed object.
+• Transversing – movement in a straight,
+continuous line that may strike or catch a
+worker in a pinch or shear point created
+between the moving part and a fixed object.
+• Cutting – action generated during sawing,
+boring, drilling, milling, slicing, and slitting.
+• Punching – motion resulting when a machine
+moves a slide (ram) to stamp or blank metal or
+other material.
+• Shearing – movement of a powered slide or
+knife during metal trimming or shearing.
+• Bending – action occurring when power is
+applied to a slide to draw or form metal or
+other materials.
+Are there any OSHA standards that cover
+amputation hazards in the workplace?
+Yes. The Occupational Safety and Health Adminis-
+tration (OSHA) has the following standards in Title
+29 of the Code of Federal Regulations (CFR) to pro-
+tect workers from amputations in the workplace:
+• 29 CFR Part 1910 Subparts O and P cover
+machinery and machine guarding.
+• 29 CFR 1926 Subpart I covers hand tools and
+powered tools.
+• 29 CFR Part 1928 Subpart D covers agricultural
+equipment.
+• 29 CFR Part 1915 Subparts C, H, and J; 29 CFR
+Part 1917 Subparts B, C, and G; and 29 CFR
+Part 1918 Subparts F, G, and H cover maritime
+operations.
+What can employers do to help protect
+workers from amputations?
+You should be able to recognize, identify, manage,
+and control amputation hazards commonly
+found in the workplace such as those caused
+Amputations
+Amputations are some of the most serious and debilitating workplace injuries. They
+are widespread and involve a variety of activities and equipment. Amputations occur
+most often when workers operate unguarded or inadequately safeguarded mechanical
+power presses, power press brakes, powered and non-powered conveyors, printing
+presses, roll-forming and rollbending machines, food slicers, meat grinders, meat-
+cutting band saws, drill presses, and milling machines as well as shears, grinders, and
+slitters. These injuries also happen during materials handling activities and when using
+forklifts and doors as well as trash compactors and powered and non-powered hand
+tools. Besides normal operation, the following activities involving stationary machines
+also expose workers to potential amputation hazards: setting up, threading, preparing,
+adjusting, cleaning, lubricating, and maintaining machines as well as clearing jams.
+FactSheet
+DSG FS-3508 04/2012
+by mechanical components of machinery, the
+mechanical motion that occurs in or near these
+components, and the activities that workers
+perform during mechanical operation.
+Work practices, employee training, and admin-
+istrative controls can help prevent and control
+amputation hazards. Machine safeguarding with
+the following equipment is the best way to control
+amputations caused by stationary machinery:
+• Guards provide physical barriers that prevent
+access to hazardous areas. They should be
+secure and strong, and workers should not be
+able to bypass, remove, or tamper with them.
+Guards should not obstruct the operator’s view
+or prevent employees from working.
+• Devices help prevent contact with points of
+operation and may replace or supplement
+guards. Devices can interrupt the normal
+cycle of the machine when the operator’s
+hands are at the point of operation, prevent
+the operator from reaching into the point of
+operation, or withdraw the operator’s hands
+if they approach the point of operation when
+the machine cycles. They must allow safe
+lubrication and maintenance and not create
+hazards or interfere with normal machine
+operation. In addition, they should be secure,
+tamper-resistant, and durable.
+You are responsible for safeguarding machines
+and should consider this need when purchasing
+machinery. New machinery is usually available with
+safeguards installed by the manufacturer. You can
+also purchase appropriate safeguards separately or
+build them in-house.
+Are certain jobs particularly hazardous
+for some employees?
+Yes. Under the Fair Labor Standards Act, the
+Secretary of Labor has designated certain nonfarm
+jobs as especially hazardous for employees
+under the age of 18. These workers generally are
+prohibited from operating band saws, circular saws,
+guillotine shears, punching and shearing machines,
+meatpacking or meat-processing machines, paper
+products machines, woodworking machines, metal-
+forming machines, and meat slicers.
+Workers’ Rights
+Workers have the right to:
+• Working conditions that do not pose a risk of
+serious harm.
+• Receive information and training (in a language
+and vocabulary the worker understands) about
+workplace hazards, methods to prevent them,
+and the OSHA standards that apply to their
+workplace.
+• Review records of work-related injuries
+and illnesses.
+• File a complaint asking OSHA to inspect
+their workplace if they believe there is a
+serious hazard or that their employer is not
+following OSHA’s rules. OSHA will keep all
+identities confidential.
+• Exercise their rights under the law without
+retaliation, including reporting an injury or
+raising health and safety concerns with their
+employer or OSHA. If a worker has been
+retaliated against for using their rights, they
+must file a complaint with OSHA as soon as
+possible, but no later than 30 days.
+For additional information, see OSHA’s Workers
+page (www.osha.gov/workers).
+How to Contact OSHA
+Under the Occupational Safety and Health Act
+of 1970, employers are responsible for providing
+safe and healthful workplaces for their employees.
+OSHA’s role is to help ensure these conditions for
+America’s working men and women by setting
+and enforcing standards, and providing training,
+education and assistance. For more information,
+visit www.osha.gov or call OSHA at 1-800-321-
+OSHA (6742), TTY 1-877-889-5627.
+This is one in a series of informational fact sheets highlighting OSHA programs, policies or
+standards. It does not impose any new compliance requirements. For a comprehensive list of
+compliance requirements of OSHA standards or regulations, refer to Title 29 of the Code of Federal
+Regulations. This information will be made available to sensory-impaired individuals upon request.
+The voice phone is (202) 693-1999; teletypewriter (TTY) number: (877) 889-5627.

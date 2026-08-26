@@ -1,0 +1,63 @@
+{
+  "name": "kyzerdocs-lite",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "npm run build:widget",
+    "build": "next build",
+    "start": "next start",
+    "pretest": "npm run build:widget",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "package": "node scripts/build-package.mjs",
+    "audit": "node scripts/audit-surface.mjs",
+    "preflight": "tsx --env-file-if-exists=.env.local evals/scripts/preflight.ts",
+    "eval": "tsx --env-file-if-exists=.env.local evals/run.ts",
+    "validate-dataset": "tsx --env-file-if-exists=.env.local evals/scripts/validate-dataset.ts",
+    "parse-audit": "tsx --env-file-if-exists=.env.local evals/scripts/parse-audit.ts",
+    "groundedness-check": "tsx --env-file-if-exists=.env.local evals/scripts/groundedness-check.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --env-file-if-exists=.env.local scripts/db-migrate.mts",
+    "build:widget": "node scripts/build-widget.mjs",
+    "measure:coldstart": "tsx --env-file-if-exists=.env.local scripts/measure-coldstart.mts"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^4.0.47",
+    "@ai-sdk/react": "^4.0.73",
+    "@google/genai": "^2.17.1",
+    "@neondatabase/serverless": "^1.1.0",
+    "@openrouter/ai-sdk-provider": "^3.0.0",
+    "@vercel/blob": "^2.8.0",
+    "ai": "^7.0.70",
+    "drizzle-orm": "^0.45.2",
+    "iron-session": "^8.0.4",
+    "mammoth": "^1.12.1",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-markdown": "^10.1.0",
+    "unpdf": "^1.8.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.0.1",
+    "pdf-lib": "^1.17.1",
+    "postgres": "^3.4.9",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

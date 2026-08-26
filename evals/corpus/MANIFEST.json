@@ -1,0 +1,178 @@
+[
+  {
+    "filename": "osha-emergency-preparedness-farmworkers.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3870.pdf (OSHA publication 3870, \"Emergency Preparedness for Farmworkers\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "3140141b167ddb9dacd54a013a534e1ffab27705983320e0ac202e727295bebb"
+  },
+  {
+    "filename": "osha-farm-vehicle-backover-prevention.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3840.pdf (OSHA publication 3840, \"Preventing Farm Vehicle Backover Incidents\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "8711c8a0c307c94890a5fe27f80083e68478c6c2aa2ceb486bd66af297314053"
+  },
+  {
+    "filename": "osha-tractor-hazards-agricultural-workers.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3835.pdf (OSHA publication 3835, \"Protecting Agricultural Workers from Tractor Hazards\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "b22cac6b3ed7852fdc87824c1bf78b933d3e9d1673498394ed2dc77d83094bca"
+  },
+  {
+    "filename": "osha-amputation-hazards-factsheet.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/AMPUTATION-FACTSHEET.pdf (OSHA fact sheet, \"Amputations\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "6396c012a8880a76bef13e66031ba50d1a1dd8b7aba292b801dddfb6bd1d4cc8"
+  },
+  {
+    "filename": "osha-aed-cardiac-arrest-workplace.pdf",
+    "format": "pdf",
+    "layout": "single-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3185.pdf (OSHA publication 3185-09N, \"Saving Sudden Cardiac Arrest Victims in the Workplace\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "fd4dd27d512bbb03b660442be946f30e4df5a63a867668923c38a024fa1f6ec4"
+  },
+  {
+    "filename": "osha-tripod-orchard-ladder-safety.pdf",
+    "format": "pdf",
+    "layout": "single-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3728.pdf (OSHA agricultural safety fact sheet, \"Safe Use of Tripod Orchard Ladders\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "e2dd4c9a7953adb15515f9211c2367ef0374f7ab8171e42d3e0af4f86396c8f2"
+  },
+  {
+    "filename": "osha-asbestos-flooring-maintenance.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3693.pdf (OSHA fact sheet, \"Protecting Workers from the Hazards of Asbestos-Containing Flooring Material Maintenance\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "bce8a2a4a95e742c09cc6ec86e6408beefd4719575b3c7a46bab4b5a91c96301"
+  },
+  {
+    "filename": "osha-asbestos-factsheet.pdf",
+    "format": "pdf",
+    "layout": "multi-column",
+    "domain": "trade",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/OSHA3507.pdf (OSHA fact sheet, \"Asbestos\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "7e8829ad5824dcb730b9695339890cf9992705ded17fbbcfcf6bfd4240b63946"
+  },
+  {
+    "filename": "osha-avian-flu-food-handlers.pdf",
+    "format": "pdf",
+    "layout": "single-column",
+    "domain": "service",
+    "provenance": "https://www.osha.gov/sites/default/files/publications/AVIAN_FLU_FOOD_HANDLERS.pdf (OSHA fact sheet, \"Avian Flu | Food Handlers\")",
+    "licence": "us-government-public-domain",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "ad63b7c5cfd637177a64733869885a485cdb6c070ef4930b060c139e61922111"
+  },
+  {
+    "filename": "clinic-intake-policy.docx",
+    "format": "docx",
+    "layout": "single-column",
+    "domain": "clinic",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "70fbb041aca1448d93df9eb4435ae8d9ed57b800d3baa893f6f766f8daea913f"
+  },
+  {
+    "filename": "service-call-faq.docx",
+    "format": "docx",
+    "layout": "single-column",
+    "domain": "service",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "a33b5bd41fdbfec76789acaf626af801f0f38bbf3bd486eb5b6ead8ecc30e944"
+  },
+  {
+    "filename": "trade-ppe-policy.docx",
+    "format": "docx",
+    "layout": "single-column",
+    "domain": "trade",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "b3c731a6048971f639d1c58ba3cf7c549ae8bc3525d252544f22eec94fb3fbe2"
+  },
+  {
+    "filename": "clinic-appointment-cancellation-policy.txt",
+    "format": "txt",
+    "layout": "single-column",
+    "domain": "clinic",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "5fda102cbdf00bd50936b46affe1198f81e32a4353ad2289627d4697dad9b7b2"
+  },
+  {
+    "filename": "service-warranty-faq.md",
+    "format": "md",
+    "layout": "single-column",
+    "domain": "service",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "f174d291fff5e57ca0f8a490692d58e035efcaea7876e1c661865c0c87fefaaa"
+  },
+  {
+    "filename": "trade-tool-checkout-log-policy.txt",
+    "format": "txt",
+    "layout": "single-column",
+    "domain": "trade",
+    "provenance": "Synthesized for this corpus by the eval harness author. Fictional organization and content, not sourced from any real business or patient/customer.",
+    "licence": "authored-original",
+    "expected_parse": "text",
+    "scoring_excluded": false,
+    "sha256": "0a9d47ae685ce8e8b440ac9e1754648f3893a22a8a3448212072a9e6b1935d9f"
+  },
+  {
+    "filename": "osha-tractor-hazards-agricultural-workers-scanned.pdf",
+    "format": "pdf",
+    "layout": "image-only",
+    "domain": "trade",
+    "provenance": "Synthesized by rasterizing each page of evals/corpus/osha-tractor-hazards-agricultural-workers.pdf (sourced from OSHA publication 3835, https://www.osha.gov/sites/default/files/publications/OSHA3835.pdf) to PNG at 150 DPI with pdftoppm, then reassembling the 3 page images into a new PDF with pdf-lib (embedPng + drawImage). No text layer, no OCR at any step; verified with unpdf extractText to yield 0 non-whitespace characters across all 3 pages.",
+    "licence": "us-government-public-domain (inherited from source document OSHA3835)",
+    "expected_parse": "zero-text",
+    "scoring_excluded": true,
+    "sha256": "73f70d860ffc5cfa5fe1e0a58fb358db66b5e00602acea71efce38dfb28ca6d6"
+  }
+]

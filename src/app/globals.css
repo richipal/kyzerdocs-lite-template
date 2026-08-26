@@ -1,0 +1,1366 @@
+/*
+ * KyzerDocs Lite — application styles.
+ *
+ * Plain CSS, no framework. The UI is semantic HTML with class names naming each component part,
+ * so most rules here are class selectors plus a handful of `data-*` attribute hooks the components
+ * already set for their own logic (status, error codes, refusal/empty-corpus states, drag state,
+ * test ids) — this file never invents a new attribute a component doesn't already carry.
+ *
+ * Palette/type/spacing are read directly off the developer-supplied design template ("KyzerDocs
+ * Lite" design canvas — an inline-styled HTML mockup of this exact product). Every hex value,
+ * radius, and grid dimension below is copied from that file, not approximated. IBM Plex Sans/Mono
+ * are self-hosted via next/font/google in src/app/layout.tsx, exposed here as
+ * --font-sans/--font-mono.
+ */
+
+:root {
+  color-scheme: light;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Page/content palette (template's outer wrapper + white/soft-white panels) */
+  --color-page-bg: #f5f4f0;
+  --color-fg: #14161a;
+  --color-muted: #6b6b66;
+  --color-muted-2: #8b8b84;
+  --color-border: #e2e0da;
+  --color-border-strong: #d5d3cc;
+  --color-surface: #ffffff; /* cards: Ingesting/Indexed/Website source/Index health panels */
+  --color-surface-soft: #fbfaf7; /* dropzone, filter input, chat right rail */
+  --color-surface-2: #edebe5;
+
+  /* Sidebar palette (template's <aside style="background:#14161A">) */
+  --color-sidebar-bg: #14161a;
+  --color-sidebar-fg: #f5f4f0;
+  --color-sidebar-track: #2b2d33;
+  --color-sidebar-active-bg: #22252b;
+  --color-sidebar-muted: #9a9a93;
+  --color-sidebar-muted-2: #8b8b84;
+  --color-sidebar-meta: #6e6e68;
+
+  /* Accent + status */
+  --color-accent: #0e4f4a;
+  --color-accent-hover: #0b3e3a;
+  --color-accent-soft: #e7efee;
+  --color-badge-bg: #f0ead9; /* source-number badge in chat citation chips */
+  --color-badge-fg: #8a5a0f;
+  --color-mark-bg: #f6e7c4; /* highlighted quote inside a passage viewer */
+  --color-ok: #0f7b3f;
+  --color-warn: #b4741a; /* in-progress / needs-attention dot (template's amber) */
+  --color-err: #b42318;
+  --color-err-soft: #fef3f2;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+  --gap: 1rem;
+
+  --sidebar-width: 232px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg);
+  background: var(--color-page-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { color: var(--color-fg); text-decoration: underline; }
+::placeholder { color: var(--color-muted-2); }
+
+/* ==================== app shell (template: 232px sidebar + 1fr content) ==================== */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100vh;
+}
+
+.app-main {
+  min-width: 0;
+  background: var(--color-page-bg);
+}
+
+/* ---------- sidebar ---------- */
+
+.sidebar {
+  background: var(--color-sidebar-bg);
+  color: var(--color-sidebar-fg);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar__brand { display: flex; align-items: center; gap: 10px; }
+
+.sidebar__logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-sidebar-fg);
+  flex-shrink: 0;
+}
+
+.sidebar__brand-name { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+
+.sidebar__tier {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-sidebar-muted-2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.sidebar__nav { display: flex; flex-direction: column; gap: 2px; }
+
+.sidebar__nav-item {
+  text-align: left;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-sidebar-muted);
+  width: 100%;
+}
+
+.sidebar__nav-item:hover:not(:disabled) { color: var(--color-sidebar-fg); }
+
+.sidebar__nav-item.is-active {
+  background: var(--color-sidebar-active-bg);
+  color: var(--color-sidebar-fg);
+}
+
+.sidebar__nav-item.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.sidebar__nav-item.is-disabled:hover { color: var(--color-sidebar-muted); }
+
+.sidebar__footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar__stats {
+  border-top: 1px solid var(--color-sidebar-track);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar__stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-sidebar-muted-2);
+}
+
+.sidebar__stat-value { color: var(--color-sidebar-fg); }
+
+.sidebar__meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-sidebar-meta);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .app-shell { grid-template-columns: 1fr; }
+
+  .sidebar {
+    position: static;
+    min-height: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .sidebar__nav { flex-direction: row; flex-wrap: wrap; }
+  .sidebar__footer { margin-top: 0; flex-direction: row; flex-wrap: wrap; gap: 18px; }
+  .sidebar__stats { border-top: none; padding-top: 0; }
+}
+
+/* ---------- generic list reset + error codes (shared by every screen) ---------- */
+
+ul { list-style: none; margin: 0; padding: 0; }
+
+/* Error codes exist to be read aloud / pasted into support messages — always the mono face. */
+[data-code], [data-error-code] {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--color-err);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.visually-hidden { display: none; }
+
+.empty-note {
+  padding: 1.25rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* empty-corpus prompt — guidance, not a failure */
+[data-empty-corpus] {
+  padding: 1.5rem 1.25rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* ---------- login (the one screen that renders outside AppShell — no session yet) ---------- */
+
+.login-shell {
+  max-width: 22rem;
+  margin: 4.5rem auto;
+  padding: 0 1.25rem;
+}
+
+.login-shell h1 { font-size: 1.3rem; margin: 0 0 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+
+/* ---------- buttons & inputs (shared primitives) ---------- */
+
+button {
+  font: inherit;
+  font-family: var(--font-sans);
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+button:hover:not(:disabled) { border-color: var(--color-fg); }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Primary call-to-action — filled deep teal, matches the template's "Upload files"/"Ask" buttons. */
+.button-primary,
+.btn-primary,
+button[type="submit"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.button-primary:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.btn-secondary { background: #ffffff; border-color: var(--color-border-strong); }
+.btn-small { padding: 5px 10px; font-size: 12px; }
+
+input, textarea {
+  font: inherit;
+  font-family: var(--font-sans);
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-soft);
+  color: var(--color-fg);
+  width: 100%;
+}
+
+input:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* ==================== documents screen ==================== */
+
+.docs { display: flex; flex-direction: column; }
+
+.docs__header {
+  padding: 26px 34px 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.docs__header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+
+.docs__subtitle { margin: 0; color: var(--color-muted); max-width: 52ch; line-height: 1.5; }
+
+.docs__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.docs__body {
+  padding: 26px 34px 40px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 26px;
+  align-items: start;
+}
+
+.docs__main { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.docs__rail { display: flex; flex-direction: column; gap: 18px; }
+.docs__footnote { font-size: 12px; color: var(--color-muted-2); line-height: 1.6; margin: 0; }
+
+@media (max-width: 900px) {
+  .docs__body { grid-template-columns: 1fr; }
+  .docs__header { padding: 20px; }
+  .docs__body { padding: 20px; }
+}
+
+/* ---------- upload dropzone ---------- */
+
+.upload-dropzone-wrapper { margin-bottom: 0; }
+
+.upload-dropzone {
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+  padding: 34px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone[data-dragging="true"] {
+  border-color: var(--color-accent);
+  background: #f7f9f8;
+}
+
+.upload-dropzone__title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--color-fg); }
+.upload-dropzone__subtitle { color: var(--color-muted); margin-bottom: 14px; }
+
+.upload-dropzone__types {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.upload-dropzone__chip {
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.upload-dropzone__limit { padding: 3px 8px; color: var(--color-muted-2); }
+
+/* ---------- panels shared by Ingesting / Indexed / Website source / Index health ---------- */
+
+.panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.panel--rail { padding: 16px; overflow: visible; }
+
+.panel__header {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--color-surface-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.panel--rail .panel__header { padding: 0 0 4px; border-bottom: none; }
+
+.panel__title { font-weight: 600; }
+.panel--rail .panel__title { margin-bottom: 4px; }
+.panel__meta { font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); }
+.panel__copy { margin: 0 0 12px; color: var(--color-muted); font-size: 13px; line-height: 1.5; }
+
+.upsell-note {
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--color-surface-soft);
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.upsell-note strong { color: var(--color-fg); font-weight: 600; }
+
+.filter-input { flex: 0 1 220px; padding: 6px 10px; font-size: 13px; }
+
+.panel .empty-note { margin: 16px; }
+
+/* ---------- Ingesting job rows ---------- */
+
+.ingest-row {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-surface-2);
+  display: grid;
+  grid-template-columns: 1fr 210px;
+  gap: 18px;
+  align-items: center;
+}
+
+.ingest-queue > .ingest-row:last-child { border-bottom: none; }
+
+.ingest-row__info { min-width: 0; }
+
+.ingest-row__name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ingest-row__detail { font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); margin-top: 4px; }
+
+.ingest-row__progress { display: flex; flex-direction: column; gap: 7px; }
+.ingest-row__bars { display: flex; gap: 4px; }
+
+.ingest-row__bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+}
+
+.ingest-row__bar.is-active { background: var(--color-accent); }
+
+.ingest-row__stage-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+}
+
+/* ---------- Indexed table ---------- */
+
+.indexed-table__header {
+  display: grid;
+  grid-template-columns: 1fr 88px 104px 84px;
+  gap: 12px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--color-surface-2);
+  background: var(--color-surface-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+}
+
+.indexed-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 88px 104px 84px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-surface-2);
+  align-items: center;
+}
+
+.indexed-table > .indexed-row:last-child { border-bottom: none; }
+.indexed-row:hover { background: var(--color-surface-soft); }
+
+.indexed-row__name { min-width: 0; display: flex; align-items: center; gap: 9px; }
+
+.indexed-row__filename { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--color-border-strong); }
+.status-dot[data-status="ready"] { background: var(--color-accent); }
+.status-dot[data-status="failed"] { background: var(--color-warn); }
+
+.indexed-row__chunks { font-family: var(--font-mono); font-size: 12px; text-align: right; }
+.indexed-row__updated { color: var(--color-muted); font-size: 13px; }
+
+.indexed-row__delete {
+  border: none;
+  background: none;
+  color: var(--color-muted-2);
+  font-size: 12.5px;
+  font-weight: 400;
+  padding: 2px 4px;
+  justify-self: end;
+}
+
+.indexed-row__delete:hover:not(:disabled) { color: var(--color-fg); border-color: transparent; }
+
+.indexed-row__failure {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  font-size: 0.85em;
+  color: var(--color-err);
+}
+
+.ta-right { text-align: right; }
+
+/* ---------- health / index-health panel ---------- */
+
+.health-checks { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+
+.health-row { display: flex; justify-content: space-between; gap: 12px; }
+.health-row__label { color: var(--color-muted); flex-shrink: 0; }
+.health-row__value { font-family: var(--font-mono); text-align: right; }
+.health-row__value--mono { font-family: var(--font-mono); }
+.health-row__detail { font-family: var(--font-sans); color: var(--color-muted); }
+
+.health-row[data-ok="false"] > .health-row__value { color: var(--color-err); }
+
+.health-panel__corpus { margin: 12px 0 0; font-size: 12px; color: var(--color-muted); }
+.health-panel__error { color: var(--color-err); font-size: 0.85em; margin: 8px 0 0; }
+
+/* ==================== chat ====================
+ *
+ * The design template's chat screen is a two-column grid (thread + a persistent right-hand
+ * "Source N" rail that updates in place when any citation chip anywhere is clicked). This build
+ * keeps the citation-fix regression's DOM contract instead (MessageList.tsx / chat.test.tsx): the
+ * passage viewer renders inline directly beneath the message whose chip was clicked, not in a
+ * shared side rail. So `.chat-shell` is single-column, and `.passage-viewer` is styled to match
+ * the template's rail card (soft background, accent left border) inline where it actually mounts.
+ */
+
+.chat-shell {
+  display: flex;
+  flex-direction: column;
+  max-width: 760px;
+  width: 100%;
+  min-height: 100%;
+}
+
+.chat-shell__header {
+  padding: 18px 30px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chat-shell__title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.chat-shell__subtitle { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+
+.chat-shell__body {
+  flex: 1;
+  padding: 26px 30px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+}
+
+.chat-shell__composer-area { padding: 0 30px 26px; display: flex; flex-direction: column; gap: 10px; }
+.chat-shell__hint { font-size: 11px; color: var(--color-muted-2); margin: 0; }
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.message { max-width: 85%; width: 100%; }
+.message--user { align-self: flex-end; }
+.message--assistant, .message--notice, .message--refusal { align-self: flex-start; }
+.message--notice, .message--refusal { max-width: 100%; }
+
+.message__who {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+  margin-bottom: 7px;
+}
+
+.message__bubble {
+  margin: 0;
+  padding: 15px 17px;
+  border-radius: var(--radius-lg);
+  white-space: pre-wrap;
+  line-height: 1.62;
+}
+
+.message--user .message__bubble {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.message--assistant .message__bubble {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.message--notice, .message--refusal {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.message__text { margin: 0 0 0.5rem; }
+.message__text:last-child { margin-bottom: 0; }
+.message__code { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--color-muted); }
+.message__link { font-weight: 500; }
+
+/* refusal reads as a calm, deliberate answer, never an error state (CHAT-04) — no red, no
+   warning iconography, even though it reuses the mono error-code face for support-copy/paste. */
+[data-refusal="true"] {
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-muted);
+  color: var(--color-fg);
+}
+
+[data-refusal="true"] [data-error-code] { color: var(--color-muted); }
+
+.chat-error {
+  font-size: 0.875rem;
+  color: var(--color-err);
+  margin: 0.75rem 0 0;
+}
+
+.chat-composer {
+  display: flex;
+  gap: 9px;
+  align-items: flex-end;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  padding: 9px 9px 9px 14px;
+}
+
+.chat-composer__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 7px 0;
+}
+
+.chat-composer button[type="submit"] { border-radius: 7px; padding: 9px 16px; }
+
+/* Send button icon (S-1, UI-STANDARDS): a plain `disabled` attribute is not visible feedback for
+ * a control at the bottom of a long panel — the rendered SVG swaps from an arrow to a spinner the
+ * instant a question is sent. */
+.chat-composer__submit { display: inline-flex; align-items: center; gap: 6px; }
+.btn-icon { flex-shrink: 0; }
+.btn-icon--spin { animation: btn-icon-spin 0.8s linear infinite; }
+
+@keyframes btn-icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-icon--spin { animation: none; }
+}
+
+/* citation chips — a persistent "Sources" row, not a collapsed accordion (template look), while
+ * staying a real <details open> so the exact text CitationChips.tsx renders (asserted by
+ * chat.test.tsx) is untouched. */
+
+.citation-disclosure { margin-top: 10px; }
+
+.citation-summary {
+  cursor: pointer;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+  list-style: none;
+}
+
+.citation-summary::-webkit-details-marker { display: none; }
+.citation-summary::marker { content: ""; }
+
+.citation-list {
+  list-style: none;
+  padding: 0;
+  margin: 7px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.citation-chip,
+button[data-citation] {
+  font-size: 12px;
+  font-family: var(--font-sans);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+  color: var(--color-fg);
+  font-weight: 400;
+}
+
+.citation-chip:hover:not(:disabled),
+button[data-citation]:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* passage viewer — styled after the template's right-rail source card, mounted inline (see the
+ * block comment above this section). */
+
+.passage-viewer,
+[role="dialog"] {
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+  padding: 14px 16px;
+  margin-top: 10px;
+  max-width: 480px;
+}
+
+.passage-viewer__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+  margin-bottom: 6px;
+}
+
+.passage-viewer__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.passage-viewer__close {
+  border: none;
+  background: none;
+  padding: 0.2rem 0.4rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.passage-viewer__close:hover:not(:disabled) { color: var(--color-fg); border-color: transparent; }
+
+.passage-viewer__meta {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0.3rem 0 0.6rem;
+}
+
+.passage-viewer__body {
+  white-space: pre-wrap;
+  margin: 0;
+  line-height: 1.65;
+  color: var(--color-fg);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+/* starter questions */
+
+.starters-status { color: var(--color-muted); }
+.starters-label { color: var(--color-muted); font-size: 0.875rem; margin: 0 0 0.6rem; }
+
+.starters-empty {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+[data-starters] { display: flex; flex-wrap: wrap; gap: 7px; }
+
+[data-starters] button {
+  background: #ffffff;
+  border-color: var(--color-border);
+  border-radius: var(--radius-pill);
+  text-align: left;
+  font-weight: 400;
+  color: var(--color-muted);
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+[data-starters] button:hover:not(:disabled) {
+  border-color: var(--color-fg);
+  color: var(--color-fg);
+}
+
+/* ---------- login form ---------- */
+
+.login-shell form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .login-shell { margin: 2.5rem auto; }
+  .chat-shell { padding: 1.1rem 0.75rem; }
+  .message, .message--notice, .message--refusal { max-width: 100%; }
+  .chat-composer { flex-direction: column; align-items: stretch; }
+}
+
+/* ---------- markdown inside assistant answers ---------- */
+/* react-markdown emits real elements; the model formats summaries with bold, bullets and
+   paragraphs, so these need to read as prose rather than as a wall of literal asterisks. */
+
+.message__bubble > :first-child { margin-top: 0; }
+.message__bubble > :last-child  { margin-bottom: 0; }
+
+.message__bubble p { margin: 0 0 0.7em; line-height: 1.55; }
+
+.message__bubble strong { font-weight: 600; color: var(--color-fg); }
+.message__bubble em { font-style: italic; }
+
+.message__bubble ul,
+.message__bubble ol { margin: 0 0 0.7em; padding-left: 1.25em; }
+
+.message__bubble li { margin: 0.25em 0; line-height: 1.55; }
+.message__bubble li::marker { color: var(--color-muted); }
+
+.message__bubble h1,
+.message__bubble h2,
+.message__bubble h3 { font-size: 1em; font-weight: 600; margin: 1em 0 0.4em; }
+
+.message__bubble code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9em;
+  background: var(--color-surface);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+.message__bubble pre {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.7em 0.85em;
+  overflow-x: auto;
+}
+
+.message__bubble pre code { background: none; padding: 0; }
+
+.message__bubble blockquote {
+  margin: 0 0 0.7em;
+  padding-left: 0.85em;
+  border-left: 2px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.message__bubble table { border-collapse: collapse; width: 100%; margin: 0 0 0.7em; }
+.message__bubble th,
+.message__bubble td { border: 1px solid var(--color-border); padding: 0.35em 0.5em; text-align: left; }
+.message__bubble th { background: var(--color-surface); font-weight: 600; }
+
+/* Model-generated follow-up questions, extracted from the answer text and rendered as clickable
+   bubbles. Grounded in the excerpts behind that specific answer, so they sit with the message
+   rather than at the bottom of the panel. */
+.followups { margin-top: 0.65rem; }
+
+.followups__label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.4rem;
+}
+
+.followups__list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.followup {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.followup:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* Pre-token wait indicator. Retrieval + the CHAT-04 groundedness judge both run before the first
+   token, so this app has a real multi-second gap where a plain chat UI would already be streaming.
+   Shown in the transcript rather than at the composer, because a click on a suggestion bubble
+   leaves the buyer looking further up the page. */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 0.15rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.thinking__dots { display: inline-flex; gap: 0.22rem; }
+
+.thinking__dots span {
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.35;
+  animation: thinking-pulse 1.05s ease-in-out infinite;
+}
+
+.thinking__dots span:nth-child(2) { animation-delay: 0.15s; }
+.thinking__dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes thinking-pulse {
+  0%, 80%, 100% { opacity: 0.35; transform: scale(0.85); }
+  40%           { opacity: 1;    transform: scale(1); }
+}
+
+/* Respect a reduced-motion preference — the label alone still communicates the wait. */
+@media (prefers-reduced-motion: reduce) {
+  .thinking__dots span { animation: none; opacity: 0.7; }
+}
+
+/* ==================== widget (Phase 3, plan 03-08) ====================
+ *
+ * The `/embed/{kbId}` iframe document. Extends this file's existing system (UI-SPEC S-4) — no
+ * second colour/spacing system. `.chat-shell--widget` is the `variant="widget"` root class
+ * ChatPanel.tsx sets; every rule below that targets it is CSS-only widget behavior, never a
+ * component logic branch. Regime B of UI-SPEC's Spacing Scale (a real 8-point scale: 4/8/16/24px)
+ * applies throughout this section, since no template precedent exists for the widget itself.
+ */
+
+.widget-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  background: var(--color-surface-soft);
+  font-family: var(--font-sans);
+}
+
+.widget-panel__header {
+  flex: 0 0 52px;
+  height: 52px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #ffffff;
+}
+
+.widget-panel__brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+.widget-panel__logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.widget-panel__monogram {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Widget header title — 16px/600, line-height 1.2 (INVENTED per UI-SPEC Typography: a deliberate
+ * tightening for a single-line title in a 52px header; every other size/weight here is inherited
+ * unchanged from the admin system). */
+.widget-panel__title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.widget-panel__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+}
+
+.widget-panel__close:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); border-color: transparent; }
+
+.widget-panel__footer {
+  flex: 0 0 auto;
+  padding: 6px 16px;
+  font-size: 11px;
+  color: var(--color-muted-2);
+  text-align: center;
+}
+
+/* The reused ChatPanel, inside the widget panel: fill the remaining flex space, and hide its own
+ * admin-shaped header entirely — the branded header above (`.widget-panel__header`) replaces it.
+ * `.chat-shell__body` becomes the scrolling region (S-4: message list is the ONLY scrolling
+ * region — header and composer stay fixed), asserted by computed `overflow-y`/`min-height`. */
+.chat-shell--widget {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  padding: 0;
+}
+
+.chat-shell--widget .chat-shell__header { display: none; }
+
+.chat-shell--widget .chat-shell__body {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 16px;
+  gap: 16px;
+}
+
+.chat-shell--widget .chat-shell__composer-area { flex: 0 0 auto; padding: 0 16px 16px; }
+
+/* Passage viewer override — the admin's 480px cap would clip the panel at 380px wide. */
+.chat-shell--widget .passage-viewer { max-width: 100%; }
+
+/* Widget empty-conversation intro (UI-SPEC Copywriting Contract: "Ask a question" / "Answers are
+ * drawn from {brandName}'s documents.") — StarterQuestions.tsx's widget variant. */
+.widget-intro__heading { font-size: 15px; font-weight: 600; margin: 0 0 4px; color: var(--color-fg); }
+.widget-intro__body { font-size: 13px; color: var(--color-muted); margin: 0 0 12px; }
+
+/* Mobile takeover (WIDG-03). The outer iframe box's own full-viewport takeover (position: fixed;
+ * inset: 0) is the HOST page's concern, already implemented in the widget loader
+ * (src/widget-src/kyzer-lite-widget.ts, plan 03-04) — this document only needs to adapt ITS OWN
+ * content to whatever viewport it is given: safe-area header padding, and a close button that
+ * meets the 44x44px minimum tap target.
+ *
+ * Two mechanisms apply the same rules, deliberately: the `@media` query below is the real,
+ * always-correct production path (this document's own viewport IS the breakpoint once the host's
+ * iframe box goes full-viewport). `.widget-panel--mobile` is a class-based mirror, driven by the
+ * `viewport` postMessage EmbedChat.tsx already listens for (D3-11's protocol) — it exists because
+ * it is independently testable (a plain class selector, unlike a live `@media` re-evaluation) and
+ * because the postMessage's `isMobile` reflects the HOST page's own device detection, which can
+ * be more reliable than this iframe's own viewport in edge cases (e.g. a host that keeps the
+ * iframe's CSS box narrower than the true device width). Keep both in sync if either changes. */
+.widget-panel--mobile .widget-panel__header {
+  flex-basis: auto;
+  height: auto;
+  padding-top: max(16px, env(safe-area-inset-top));
+  padding-bottom: 12px;
+}
+
+.widget-panel--mobile .widget-panel__close { width: 44px; height: 44px; }
+
+@media (max-width: 480px) {
+  .widget-panel__header {
+    flex-basis: auto;
+    height: auto;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: 12px;
+  }
+
+  .widget-panel__close { width: 44px; height: 44px; }
+}
+
+/* ==================== admin widget-config screen (plan 03-09) ====================
+ * Regime A of the UI-SPEC Spacing Scale: reuses Documents/Chat's exact shipped values
+ * (26px 34px header padding, 26px body gap, 13px 16px panel-header padding, 16px rail padding) —
+ * no new arbitrary numbers introduced in this section, per S-4. The one genuinely new grid value
+ * is 340px (vs. Documents' 300px rail) — wide enough to host a real, legible scaled-down iframe. */
+
+.widget-page { display: flex; flex-direction: column; }
+
+.widget-page__local-banner {
+  margin: 0 34px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.widget-page__save-bar {
+  margin: 18px 34px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.widget-page__save-error {
+  margin: 0;
+  color: var(--color-err);
+  font-size: 12px;
+}
+
+.widget-page__body {
+  padding: 26px 34px 40px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 26px;
+  align-items: start;
+}
+
+.widget-page__main { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.widget-page__rail { display: flex; flex-direction: column; gap: 18px; }
+
+@media (max-width: 900px) {
+  .widget-page__body { grid-template-columns: 1fr; }
+  .widget-page__local-banner { margin: 20px 20px 0; }
+  .widget-page__save-bar { margin: 18px 20px 0; }
+  .widget-page__body { padding: 20px; }
+}
+
+/* ---------- shared form-field primitives (Branding / Widget settings / Allowed domains) ---------- */
+
+.widget-form-panel__body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.widget-form-field { display: flex; flex-direction: column; gap: 6px; }
+
+.widget-form-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.widget-form-field__counter { font-family: var(--font-mono); font-size: 11px; font-weight: 400; color: var(--color-muted-2); }
+.widget-form-field__error { margin: 0; color: var(--color-err); font-size: 12px; }
+.widget-form-field__warning { margin: 0; color: var(--color-warn); font-size: 12px; line-height: 1.5; }
+
+/* ---------- Branding: logo row + accent colour row ---------- */
+
+.widget-logo-row { display: flex; align-items: center; gap: 10px; }
+
+.widget-logo-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.widget-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.widget-logo-preview__monogram { font-family: var(--font-mono); font-weight: 600; color: var(--color-muted); }
+
+.widget-logo-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.widget-accent-row { display: flex; align-items: center; gap: 8px; }
+
+.widget-accent-swatch {
+  width: 40px;
+  height: 36px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.widget-accent-hex { font-family: var(--font-mono); flex: 1; }
+
+/* ---------- Widget settings: position segmented control ---------- */
+
+.widget-position-toggle {
+  display: flex;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.widget-position-toggle__option {
+  border: none;
+  border-radius: 0;
+  background: var(--color-surface);
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.widget-position-toggle__option + .widget-position-toggle__option { border-left: 1px solid var(--color-border-strong); }
+
+/* One of the three places the accent colour is permitted on this screen (UI-SPEC Color section). */
+.widget-position-toggle__option.is-active { background: var(--color-accent); color: #ffffff; }
+
+/* ---------- Allowed domains ---------- */
+
+.widget-domain-add { display: flex; gap: 8px; }
+.widget-domain-add input { flex: 1; }
+
+.widget-domain-empty {
+  margin: 0;
+  padding: 12px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.widget-domain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Caps the list's height so a long allowlist can never push the preview below the fold
+   * (UI-SPEC Surface 2: the preview is this screen's primary visual anchor). */
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.widget-domain-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.widget-domain-row__name { font-family: var(--font-mono); font-size: 13px; }
+
+.widget-domain-row__remove {
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  color: var(--color-muted-2);
+  font-size: 12px;
+}
+
+.widget-domain-row__remove:hover:not(:disabled) { color: var(--color-fg); border-color: transparent; }
+
+.widget-domain-undo { margin: 0; font-size: 12px; color: var(--color-muted); }
+
+.widget-domain-undo__button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--color-accent);
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+/* ---------- Live preview (rail) — the screen's primary visual anchor ---------- */
+
+.widget-preview-frame-wrap { position: relative; }
+
+.widget-preview-frame {
+  width: 100%;
+  height: 420px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+}
+
+.widget-preview-frame__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  color: var(--color-err);
+  font-size: 12px;
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-lg);
+}
+
+/* ---------- Install snippet (rail) ---------- */
+
+.widget-snippet-code {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+}
+
+.widget-snippet-unsaved { margin: 0; color: var(--color-muted); font-size: 13px; line-height: 1.5; }
+
+/* ---------- AppShell sidebar branding (ADMIN-04) ---------- */
+
+.sidebar__logo--image { object-fit: cover; }

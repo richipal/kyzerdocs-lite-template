@@ -1,0 +1,5 @@
+evals/
+.planning/
+data/
+.env*
+scripts/

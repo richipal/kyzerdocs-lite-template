@@ -1,0 +1,23 @@
+Ironclad Electrical Contractors - Tool Checkout and Calibration Log Policy
+Document ID: IEC-TOOL-LOG-04
+
+1. Checkout Procedure
+Every technician checking out a calibrated instrument (multimeter, clamp meter, insulation tester, or torque wrench) must record the tool asset tag, checkout date, expected return date, and truck number on the shop whiteboard, then log the same entry in Form IEC-TL-01 within 24 hours.
+
+2. Calibration Intervals
+- Digital multimeters (asset tags DM-100 through DM-140): calibrated every 12 months at an accredited lab.
+- Clamp meters (asset tags CM-200 through CM-225): calibrated every 12 months.
+- Insulation resistance testers (asset tags IR-300 through IR-310): calibrated every 6 months due to high-voltage measurement tolerance requirements.
+- Torque wrenches (asset tags TW-400 through TW-430): calibrated every 6 months or after 5,000 uses, whichever comes first.
+
+3. Overdue Calibration
+Any tool more than 15 days past its calibration due date is pulled from service and tagged with a red "OUT OF CALIBRATION" tag until recalibrated. Field use of an out-of-calibration tool is a reportable safety violation under Form IEC-SV-02.
+
+4. Loss or Damage
+A lost or damaged calibrated tool must be reported to the shop supervisor within 4 hours of discovery. Replacement cost for a lost torque wrench (asset tags TW-400 series) is $210; for a lost insulation resistance tester (IR-300 series), $640.
+
+5. Return Condition
+Tools are returned to the shop cage clean and with battery levels above 20 percent, or flagged for battery replacement on the return log.
+
+6. Weekly Reconciliation
+The shop supervisor reconciles the checkout whiteboard against Form IEC-TL-01 every Friday at 3:00 PM and flags any discrepancy for same-day resolution.

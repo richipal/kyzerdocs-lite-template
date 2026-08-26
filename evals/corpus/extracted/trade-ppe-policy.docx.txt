@@ -1,0 +1,36 @@
+Ironclad Electrical Contractors - PPE and Lockout/Tagout Policy
+
+Document ID: IEC-PPE-POLICY-06. Applies to all field technicians and apprentices.
+
+1. Arc-Flash PPE Categories
+
+Arc-flash PPE Category 2 is required for incident energy above 1.2 cal/cm2. Arc-flash PPE Category 4 is required for incident energy above 8 cal/cm2, up to 40 cal/cm2.
+
+2. Lockout/Tagout Voltage Threshold
+
+Lockout/tagout procedures are mandatory on any circuit rated 50 volts or greater before work begins.
+
+3. Panel Lug Torque Specifications
+
+Per manufacturer torque chart IEC-014, panel lugs are torqued to 35 in-lb for 14 to 10 AWG conductors, and 50 in-lb for 8 to 6 AWG conductors.
+
+4. PPE Inspection Schedule
+
+Technicians perform a daily visual inspection of PPE before use. A documented inspection is completed monthly on Form IEC-PPE-07.
+
+5. Insulated Gloves
+
+Insulated gloves are Class 00, rated to 500V AC. Gloves are tested every 6 months and replaced immediately if any puncture is found.
+
+6. Hard Hat Replacement
+
+Hard hats are replaced every 5 years from the date of manufacture, or immediately after any impact.
+
+7. Lockout/Tagout Devices
+
+Each crew truck carries a minimum of 2 lockout locks. Tags must include the technician ID and the date the lock was applied.
+
+8. Weekly Safety Meeting
+
+A mandatory toolbox talk is held every Monday at 7:00 AM and documented on Form IEC-TB-02.
+
