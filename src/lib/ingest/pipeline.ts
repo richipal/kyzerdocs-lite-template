@@ -73,6 +73,27 @@ function classifyIngestError(err: unknown): { code: ErrorCode; message: string }
   return { code: "KDL-INGEST-001", message };
 }
 
+/** Flattens an error and its `cause` chain into one loggable string. `AppError` carries the real
+ * failure on `cause` (see `classifyPdfError`), so logging only the top-level message would record
+ * the same buyer-facing sentence that is already stored — and none of the reason. */
+function formatErrorChain(err: unknown): string {
+  const parts: string[] = [];
+  let current: unknown = err;
+  let depth = 0;
+  while (current && depth < 5) {
+    if (current instanceof Error) {
+      parts.push(`${current.name}: ${current.message}`);
+      if (depth === 0 && current.stack) parts.push(current.stack.split("\n").slice(1, 4).join(" | "));
+      current = (current as { cause?: unknown }).cause;
+    } else {
+      parts.push(String(current));
+      current = undefined;
+    }
+    depth += 1;
+  }
+  return parts.join("  <- caused by  ");
+}
+
 /** Deterministic chunk id from `(documentId, chunkIndex)` — required so a resumed run's
  * `upsertChunks` call (`ON CONFLICT(id) DO UPDATE`) overwrites the same rows rather than creating
  * duplicates (ING-08's "no duplication on resume" requirement). */
@@ -181,6 +202,18 @@ async function runPipeline(
     }
   } catch (err) {
     const classified = classifyIngestError(err);
+    // The buyer-facing `errorMessage` persisted below is deliberately free of technical detail
+    // (S-6) and is rendered verbatim by `DocumentRow`. That leaves nobody able to diagnose a
+    // failure after the fact: a valid PDF that fails only in the deployed runtime reads to the
+    // buyer as "may be unreadable or corrupt", and the real reason — held on the AppError's
+    // `cause` — was discarded at this line. Log the full chain server-side so it reaches the
+    // platform's runtime logs while the buyer still gets plain language.
+    // eslint-disable-next-line no-console -- deliberate: this is the only diagnostic trail a
+    // deployed failure leaves, and support cannot ask a non-technical buyer to reproduce it.
+    console.error(
+      `[ingest] document=${documentId} job=${jobId} failed code=${classified.code}`,
+      formatErrorChain(err),
+    );
     // A failure must never leave status at `parsing`/`embedding` — it settles at `failed` with a
     // specific code, and `chunksProcessed` stays at the last successfully persisted batch (not 0,
     // not the total) so `resumeIngestion` knows exactly where to continue.
