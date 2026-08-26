@@ -10,7 +10,27 @@ import type { NextConfig } from "next";
  * time during ingestion, not something the bundler needs to tree-shake into client code.
  */
 const nextConfig: NextConfig = {
-  output: "standalone",
+  /**
+   * Conditional, and it has to be. `standalone` is what makes `npx`/Docker packaging possible
+   * (DELIV-01) — and it is also what breaks a Vercel deploy (DELIV-04).
+   *
+   * Next traces its production server to `.next/next-server.js.nft.json` and Vercel's builder
+   * reads that file to bundle the serverless functions. With `output: "standalone"`, Next instead
+   * reorganises the traced output under `.next/standalone/`, and Vercel's `onBuildComplete` step
+   * dies with:
+   *
+   *   ENOENT: no such file or directory, open '/vercel/path0/.next/next-server.js.nft.json'
+   *
+   * Next's own docs describe `standalone` as being for deploying "on its own without installing
+   * node_modules" — Docker and self-hosting, not a platform that does its own bundling.
+   *
+   * `VERCEL` is set to "1" in every Vercel build environment, so cloud builds get the default
+   * output and local packaging keeps standalone. Do not "simplify" this back to an unconditional
+   * value: one of the two delivery modes breaks either way, and which one breaks is invisible
+   * until a real deploy. No local build, test or typecheck catches it — this cost a failed
+   * deployment to find.
+   */
+  output: process.env.VERCEL ? undefined : "standalone",
   /**
    * REMOVED: serverExternalPackages: ["unpdf", "mammoth"].
    *
