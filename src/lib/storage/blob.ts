@@ -43,16 +43,31 @@ const UPLOAD_PREFIX = "uploads";
  * `PRODUCT_CONFIG.storage.blobToken` (production) — pass it explicitly only for a live test arm
  * that must never write to `process.env` (see this file's header). */
 export function createBlobFileStorage(tokenOverride?: string): FileStorage {
-  function requireToken(): string {
+  /**
+   * Returns the auth to spread into an SDK call, or throws KDL-BLOB-001 when the deployment has
+   * no Blob credentials of any kind.
+   *
+   * Two forms are valid and Vercel picks the first by default. A connected Blob store authenticates
+   * over OIDC using `VERCEL_OIDC_TOKEN` + `BLOB_STORE_ID`; `@vercel/blob`'s own types state that
+   * `token` is "Ignored when Vercel OIDC token is available and either process.env.BLOB_STORE_ID or
+   * options.storeId is set." A long-lived `BLOB_READ_WRITE_TOKEN` is the other form, used outside
+   * Vercel and for generating client upload tokens.
+   *
+   * Requiring the read-write token alone was stricter than the SDK itself: a correctly connected
+   * store would authenticate fine while this module refused to start, surfacing to the buyer as
+   * "File storage is not configured" on a deployment where it demonstrably was. Found on a real
+   * deploy (03-UAT finding F2), not by any local test — nothing in a dev environment sets
+   * `BLOB_STORE_ID`.
+   */
+  function resolveAuth(): { token?: string } {
     const token = tokenOverride ?? PRODUCT_CONFIG.storage.blobToken;
-    if (!token) {
-      throw new AppError("KDL-BLOB-001");
-    }
-    return token;
+    if (token) return { token };
+    if (PRODUCT_CONFIG.storage.blobStoreId) return {};
+    throw new AppError("KDL-BLOB-001");
   }
 
   async function store(bytes: Uint8Array, meta: FileMeta): Promise<{ storagePath: string; contentHash: string }> {
-    const token = requireToken();
+    const auth = resolveAuth();
     const ext = extname(meta.filename).toLowerCase();
     const pathname = `${UPLOAD_PREFIX}/${randomUUID()}${ext}`;
     const contentHash = createHash("sha256").update(bytes).digest("hex");
@@ -60,7 +75,7 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
     try {
       await put(pathname, Buffer.from(bytes), {
         access: "private",
-        token,
+        ...auth,
         addRandomSuffix: false,
         contentType: meta.mimeType || "application/octet-stream",
       });
@@ -72,9 +87,9 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
   }
 
   async function read(storagePath: string): Promise<Buffer> {
-    const token = requireToken();
+    const auth = resolveAuth();
     try {
-      const got = await get(storagePath, { access: "private", token });
+      const got = await get(storagePath, { access: "private", ...auth });
       if (!got || !got.stream) {
         throw new Error(`no object found at pathname: ${storagePath}`);
       }
@@ -86,9 +101,9 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
   }
 
   async function deleteObject(storagePath: string): Promise<void> {
-    const token = requireToken();
+    const auth = resolveAuth();
     try {
-      await del(storagePath, { token });
+      await del(storagePath, { ...auth });
     } catch {
       // Idempotent — matches LocalFileStorage#delete's semantics: deleting an already-absent
       // object (or one that fails to delete for any other reason) is never an error here.

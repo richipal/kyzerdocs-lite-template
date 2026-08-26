@@ -40,6 +40,7 @@ const envSchema = z.object({
   // blankAsUndefined preprocessing as every other optional var, per D2-09d's convention.
   DATABASE_URL: blankAsUndefined,
   BLOB_READ_WRITE_TOKEN: blankAsUndefined,
+  BLOB_STORE_ID: blankAsUndefined,
 });
 
 /** Parses `process.env` against the schema above. Never throws — every field is optional (and
@@ -159,6 +160,10 @@ export const PRODUCT_CONFIG = deepFreeze({
    * mode, where it is never read. */
   storage: {
     blobToken: env.BLOB_READ_WRITE_TOKEN,
+    /** Set by Vercel when a Blob store is connected with the default OIDC auth. `@vercel/blob`
+     * authenticates with `VERCEL_OIDC_TOKEN` + this id and IGNORES `token` entirely in that mode,
+     * so its presence means storage is configured even with no read-write token present. */
+    blobStoreId: env.BLOB_STORE_ID,
   },
 });
 

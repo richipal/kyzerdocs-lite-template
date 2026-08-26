@@ -42,7 +42,7 @@ drift from what the app actually does — do not hand-edit it.
 | KDL-DB-003 | The database could not be reached. | Check that DATABASE_URL is correct and the database is running, then try again. |
 | KDL-DB-004 | The database schema is missing or out of date. | Run `npm run db:migrate` against your DATABASE_URL, then restart the app. |
 | KDL-DB-005 | The configured database is not a recognized Neon host. | Check DATABASE_URL — it must point at a Neon Postgres database (host ending in neon.tech), not any other provider. |
-| KDL-BLOB-001 | File storage is not configured for this deployment. | Add a Blob store to your Vercel project — it sets BLOB_READ_WRITE_TOKEN for you — then redeploy. |
+| KDL-BLOB-001 | File storage is not configured for this deployment. | Connect a Blob store to your Vercel project and redeploy. If one is already connected, open it, create a read-write token, add it to the project as BLOB_READ_WRITE_TOKEN, and redeploy. |
 | KDL-BLOB-002 | The uploaded file could not be stored. | Check that the Blob store still exists and its token has not been revoked, then re-upload. |
 | KDL-BLOB-003 | The stored copy of this document could not be read. | Re-upload the document — its stored copy is missing or unreadable. |
 | KDL-BLOB-004 | Blob storage could not be reached. | Check that your Blob store still exists and BLOB_READ_WRITE_TOKEN is correct, then try again. |

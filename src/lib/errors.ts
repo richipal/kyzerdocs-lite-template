@@ -220,7 +220,7 @@ export const ERROR_CODES = {
   */
   "KDL-BLOB-001": {
     message: "File storage is not configured for this deployment.",
-    action: "Add a Blob store to your Vercel project — it sets BLOB_READ_WRITE_TOKEN for you — then redeploy.",
+    action: "Connect a Blob store to your Vercel project and redeploy. If one is already connected, open it, create a read-write token, add it to the project as BLOB_READ_WRITE_TOKEN, and redeploy.",
   },
   /*
     Fires when a `put()` call to Vercel Blob itself fails (token revoked, store deleted, transient
