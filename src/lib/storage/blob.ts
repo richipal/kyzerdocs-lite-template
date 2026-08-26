@@ -87,7 +87,7 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
     return { storagePath: pathname, contentHash };
   }
 
-  async function read(storagePath: string): Promise<Buffer> {
+  async function read(storagePath: string): Promise<Uint8Array> {
     const auth = resolveAuth();
     try {
       const got = await get(storagePath, { access: "private", ...auth });
@@ -95,7 +95,8 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
         throw new Error(`no object found at pathname: ${storagePath}`);
       }
       const arrayBuffer = await new Response(got.stream).arrayBuffer();
-      return Buffer.from(arrayBuffer);
+      // `new Uint8Array(...)`, never `Buffer.from(...)` — see the interface's note.
+      return new Uint8Array(arrayBuffer);
     } catch (cause) {
       throw new AppError("KDL-BLOB-003", { cause });
     }

@@ -68,9 +68,11 @@ export async function storeUpload(
 
 /** Reads a previously stored upload's bytes. Throws (never reads) if `storagePath` resolves
  * outside `uploadDir` — this is the read-side half of T-02-05-01's mitigation. */
-export async function readUpload(storagePath: string): Promise<Buffer> {
+export async function readUpload(storagePath: string): Promise<Uint8Array> {
   const resolved = assertInsideUploadDir(storagePath);
-  return readFile(resolved);
+  // `readFile` resolves a `Buffer`; the copy into a plain `Uint8Array` is what the interface
+  // promises and what pdf.js requires — see `file-storage.ts`'s note on `read()`.
+  return new Uint8Array(await readFile(resolved));
 }
 
 /** Deletes a previously stored upload. Idempotent — deleting an already-absent file is not an

@@ -30,8 +30,16 @@ export interface FileStorage {
    * extension — never used as (or concatenated into) the key itself. */
   store(bytes: Uint8Array, meta: FileMeta): Promise<{ storagePath: string; contentHash: string }>;
 
-  /** Reads back a previously stored object's bytes in full. */
-  read(storagePath: string): Promise<Buffer>;
+  /** Reads back a previously stored object's bytes in full, as a plain `Uint8Array` — the same
+   * type `store()` accepts, so a round trip through this interface is type-symmetric.
+   *
+   * NOT `Buffer`, deliberately. `Buffer` extends `Uint8Array`, so it satisfies every structural
+   * check and every byte comparison — and `unpdf`/pdf.js rejects it outright with "Please provide
+   * binary data as `Uint8Array`, rather than `Buffer`." Local mode never hit this because
+   * `/api/ingest` parses the bytes straight from the request and never reads them back; only cloud
+   * mode round-trips through storage, so a `Buffer` here broke every PDF upload on a deployment
+   * while local ingestion stayed green (03-UAT F6). */
+  read(storagePath: string): Promise<Uint8Array>;
 
   /** Deletes a previously stored object. Idempotent — deleting an already-absent object never
    * throws. */

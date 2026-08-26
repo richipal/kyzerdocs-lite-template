@@ -56,6 +56,16 @@ describe.each(arms)("FileStorage conformance ($name)", ({ storage }) => {
     const readBack = await storage.read(storagePath);
     expect(Buffer.from(readBack).equals(Buffer.from(original))).toBe(true);
 
+    // The type matters as much as the contents, and this assertion exists because the contents
+    // check above CANNOT catch what actually broke. `Buffer` extends `Uint8Array`, so a `Buffer`
+    // return passes every byte comparison here — `Buffer.from()` on both sides normalises the very
+    // difference under test — while `unpdf`/pdf.js rejects it with "Please provide binary data as
+    // `Uint8Array`, rather than `Buffer`." That shipped: every PDF upload failed on a deployment
+    // as "may be unreadable or corrupt" while local ingestion stayed green, because local mode
+    // parses straight from the request and never reads back through this interface (03-UAT F6).
+    expect(readBack).toBeInstanceOf(Uint8Array);
+    expect(Buffer.isBuffer(readBack)).toBe(false);
+
     await storage.delete(storagePath);
   });
 
