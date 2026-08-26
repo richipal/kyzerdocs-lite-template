@@ -248,6 +248,10 @@ export const ERROR_CODES = {
     specific write/read of a specific object failed) — this is the health panel's general "is the
     store reachable right now" signal, parallel to KDL-DB-003's role for Postgres.
   */
+  "KDL-BLOB-005": {
+    message: "Document uploads are unavailable on this deployment.",
+    action: "Open your Blob store in Vercel, create a read-write token, add it to the project as BLOB_READ_WRITE_TOKEN, and redeploy. A store connected without one can store files but cannot accept browser uploads.",
+  },
   "KDL-BLOB-004": {
     message: "Blob storage could not be reached.",
     action: "Check that your Blob store still exists and BLOB_READ_WRITE_TOKEN is correct, then try again.",

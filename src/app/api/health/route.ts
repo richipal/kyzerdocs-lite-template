@@ -37,7 +37,7 @@
 import { list } from "@vercel/blob";
 import { resolveChatProvider } from "../../../lib/chat/model.js";
 import { PRODUCT_CONFIG } from "../../../lib/config.js";
-import { resolveBlobAuth } from "../../../lib/storage/blob-auth.js";
+import { resolveBlobAuth, canMintClientUploadTokens } from "../../../lib/storage/blob-auth.js";
 import { embedQuery } from "../../../lib/embeddings/gemini.js";
 import { ERROR_CODES, type ErrorCode } from "../../../lib/errors.js";
 import { requireAdmin } from "../../../lib/auth/session.js";
@@ -148,6 +148,14 @@ async function checkBlob(): Promise<CheckResult> {
   }
   try {
     await list({ ...auth, limit: 1 });
+    // Reaching the store is not enough to call this healthy. Uploads go browser-direct to bypass
+    // the 4.5MB Function body cap, and minting that client token needs the read-write token
+    // specifically — OIDC alone authenticates the server but cannot sign a browser's token. A
+    // deployment that passes the list() above and fails here accepts no uploads at all, so
+    // reporting ok would be reporting a working store on a product that cannot ingest anything.
+    if (!canMintClientUploadTokens()) {
+      return { ok: false, code: "KDL-BLOB-005" };
+    }
     return { ok: true };
   } catch {
     return { ok: false, code: "KDL-BLOB-004" };

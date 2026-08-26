@@ -87,3 +87,25 @@ describe("consumers of resolveBlobAuth", () => {
     expect(auth.resolveBlobAuth()).not.toBeNull();
   });
 });
+
+describe("canMintClientUploadTokens — stricter than isBlobConfigured, on purpose", () => {
+  it("is false on the OIDC path even though the store is reachable", async () => {
+    const { auth } = await withConfig({ blobStoreId: "store_synthetic_oidc" });
+    // The exact shape of the defect that reached a live deployment: server-side blob calls all
+    // succeed, /api/health passed, and every browser upload failed with the SDK's own
+    // "No read-write token found". Reporting healthy here would mean reporting a working store on
+    // a product that cannot ingest a single document.
+    expect(auth.isBlobConfigured()).toBe(true);
+    expect(auth.canMintClientUploadTokens()).toBe(false);
+  });
+
+  it("is true when a read-write token is present", async () => {
+    const { auth } = await withConfig({ blobToken: "vercel_blob_rw_synthetic" });
+    expect(auth.canMintClientUploadTokens()).toBe(true);
+  });
+
+  it("is false when nothing is configured at all", async () => {
+    const { auth } = await withConfig({});
+    expect(auth.canMintClientUploadTokens()).toBe(false);
+  });
+});

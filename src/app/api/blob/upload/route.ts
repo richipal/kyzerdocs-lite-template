@@ -21,6 +21,7 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { requireAdmin, unauthorizedResponse } from "../../../../lib/auth/session.js";
 import { AppError } from "../../../../lib/errors.js";
+import { canMintClientUploadTokens } from "../../../../lib/storage/blob-auth.js";
 import { SUPPORTED_FILE_TYPES, validateFileMetadata, MAX_UPLOAD_BYTES } from "../../../../lib/ingest/validate.js";
 
 const ALLOWED_CONTENT_TYPES = Object.keys(SUPPORTED_FILE_TYPES.documents);
@@ -58,6 +59,14 @@ export async function POST(req: Request): Promise<Response> {
   } catch (err) {
     if (err instanceof AppError) return unauthorizedResponse(err);
     throw err;
+  }
+
+  // Fail with the actionable code BEFORE handleUpload() surfaces its own generic
+  // "No read-write token found" through KDL-INGEST-001, which tells a buyer to check the document
+  // status for a problem that is really a missing deployment credential.
+  if (!canMintClientUploadTokens()) {
+    const err = new AppError("KDL-BLOB-005");
+    return Response.json(err.toJSON(), { status: 503 });
   }
 
   const body = (await req.json()) as HandleUploadBody;

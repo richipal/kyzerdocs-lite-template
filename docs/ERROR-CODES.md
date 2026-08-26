@@ -45,5 +45,6 @@ drift from what the app actually does — do not hand-edit it.
 | KDL-BLOB-001 | File storage is not configured for this deployment. | Connect a Blob store to your Vercel project and redeploy. If one is already connected, open it, create a read-write token, add it to the project as BLOB_READ_WRITE_TOKEN, and redeploy. |
 | KDL-BLOB-002 | The uploaded file could not be stored. | Check that the Blob store still exists and its token has not been revoked, then re-upload. |
 | KDL-BLOB-003 | The stored copy of this document could not be read. | Re-upload the document — its stored copy is missing or unreadable. |
+| KDL-BLOB-005 | Document uploads are unavailable on this deployment. | Open your Blob store in Vercel, create a read-write token, add it to the project as BLOB_READ_WRITE_TOKEN, and redeploy. A store connected without one can store files but cannot accept browser uploads. |
 | KDL-BLOB-004 | Blob storage could not be reached. | Check that your Blob store still exists and BLOB_READ_WRITE_TOKEN is correct, then try again. |
 | KDL-WIDG-006 | The widget configuration you submitted is invalid. | Check each field — domain format, accent colour, title length — and try again. |

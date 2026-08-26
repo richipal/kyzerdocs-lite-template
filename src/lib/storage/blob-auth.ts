@@ -38,3 +38,21 @@ export function resolveBlobAuth(tokenOverride?: string): { token?: string } | nu
 export function isBlobConfigured(): boolean {
   return resolveBlobAuth() !== null;
 }
+
+/**
+ * Whether this deployment can mint CLIENT upload tokens — the browser-direct upload path that
+ * exists to bypass Vercel's 4.5MB Function body cap.
+ *
+ * This is deliberately stricter than `isBlobConfigured()`, and the difference is not cosmetic.
+ * OIDC authenticates the SERVER to Blob, so `put`/`get`/`list`/`del` all work with it. Minting a
+ * token a BROWSER will present requires the long-lived read-write token — Vercel's own docs list
+ * `BLOB_READ_WRITE_TOKEN` as being for "code running outside Vercel or to generate client tokens
+ * for browser uploads", and `handleUpload()` fails with "No read-write token found" without it.
+ *
+ * A default one-click Blob connection provisions OIDC only. That deployment passes every
+ * server-side blob check and still cannot accept a single upload — which is exactly what reached a
+ * real buyer-shaped test (03-UAT F4): `/api/health` reported blob ok while every upload failed.
+ */
+export function canMintClientUploadTokens(): boolean {
+  return Boolean(PRODUCT_CONFIG.storage.blobToken);
+}

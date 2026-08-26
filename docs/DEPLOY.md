@@ -30,6 +30,28 @@ both inside the same deploy flow, with billing routed through your Vercel accoun
 with exactly two accounts: Vercel, and Neon (created on your behalf, through Vercel).** That
 matches what the Business tier is sold on.
 
+
+### One extra step the deploy flow does not do for you
+
+When Vercel connects a Blob store it authenticates your server automatically, and that is enough for
+most things — but **not** for uploads. Documents are sent from the browser straight to storage (this
+is how files larger than 4.5MB get through at all), and permission for that has to be issued by a
+token the automatic setup does not create.
+
+Without it your site will deploy, sign in, and answer questions perfectly, and every document upload
+will fail. The health panel will tell you so in plain terms, with the code `KDL-BLOB-005`.
+
+To create it, once:
+
+1. In your Vercel project, open **Storage** and click your Blob store.
+2. Find **Tokens**, and create a **Read-write** token. Copy it.
+3. Go to **Settings → Environment Variables** in the project.
+4. Add a variable named exactly `BLOB_READ_WRITE_TOKEN`, paste the token as the value, and save it
+   for **Production**.
+5. Open the **Deployments** tab and redeploy the most recent deployment.
+
+Uploads will work from that point on.
+
 You will not see "Vercel Postgres" or "Vercel KV" as options anywhere in this flow — Vercel
 discontinued both of those products in December 2024. Neon (via the Vercel Marketplace) is what
 you get instead, and it is the correct, current choice, not a downgrade.
