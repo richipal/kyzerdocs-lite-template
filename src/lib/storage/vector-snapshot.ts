@@ -35,6 +35,7 @@
 
 import { del, get, put } from "@vercel/blob";
 import { PRODUCT_CONFIG } from "../config.js";
+import { resolveBlobAuth } from "./blob-auth.js";
 
 /** ASCII "KDSN" (KyzerDocs Snapshot) as a little-endian uint32 — a cheap structural check that
  * rejects garbage before any length-derived slicing runs. */
@@ -149,13 +150,13 @@ export function decodeVectorSnapshot(buf: Buffer): VectorSnapshotPayload {
  * completed.
  */
 export async function writeVectorSnapshot(kbId: string, payload: VectorSnapshotPayload): Promise<void> {
-  const token = PRODUCT_CONFIG.storage.blobToken;
-  if (!token) return; // cloud mode without a blob token configured — nothing to write to.
+  const auth = resolveBlobAuth();
+  if (!auth) return; // no Blob credentials of any kind — nothing to write to.
   try {
     const buf = encodeVectorSnapshot(payload);
     await put(snapshotPathname(kbId, payload.generation), buf, {
       access: "private",
-      token,
+      ...auth,
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "application/octet-stream",
@@ -167,7 +168,7 @@ export async function writeVectorSnapshot(kbId: string, payload: VectorSnapshotP
   }
   if (payload.generation > 0) {
     try {
-      await del(snapshotPathname(kbId, payload.generation - 1), { token });
+      await del(snapshotPathname(kbId, payload.generation - 1), { ...auth });
     } catch {
       // best-effort — an orphaned prior-generation object is harmless, never read.
     }
@@ -184,10 +185,10 @@ export async function writeVectorSnapshot(kbId: string, payload: VectorSnapshotP
  * "just not there yet" (T-03-07-02: neither should ever surface as an error to a caller).
  */
 export async function readVectorSnapshot(kbId: string, expectedGeneration: number): Promise<VectorSnapshotPayload | null> {
-  const token = PRODUCT_CONFIG.storage.blobToken;
-  if (!token) return null;
+  const auth = resolveBlobAuth();
+  if (!auth) return null;
   try {
-    const got = await get(snapshotPathname(kbId, expectedGeneration), { access: "private", token, useCache: false });
+    const got = await get(snapshotPathname(kbId, expectedGeneration), { access: "private", ...auth, useCache: false });
     if (!got || got.statusCode !== 200 || !got.stream) return null;
     const buf = Buffer.from(await new Response(got.stream).arrayBuffer());
     const payload = decodeVectorSnapshot(buf);
@@ -204,10 +205,10 @@ export async function readVectorSnapshot(kbId: string, expectedGeneration: numbe
  * cleanup handles production lifecycle). Never throws; a leftover snapshot is harmless — it is
  * only ever served by an exact-generation key match. */
 export async function deleteVectorSnapshot(kbId: string, generation: number): Promise<void> {
-  const token = PRODUCT_CONFIG.storage.blobToken;
-  if (!token) return;
+  const auth = resolveBlobAuth();
+  if (!auth) return;
   try {
-    await del(snapshotPathname(kbId, generation), { token });
+    await del(snapshotPathname(kbId, generation), { ...auth });
   } catch {
     // best-effort
   }

@@ -32,6 +32,7 @@ import { extname } from "node:path";
 import { del, get, put } from "@vercel/blob";
 import { PRODUCT_CONFIG } from "../config.js";
 import { AppError } from "../errors.js";
+import { resolveBlobAuth } from "./blob-auth.js";
 import type { FileMeta } from "../ingest/types.js";
 import type { FileStorage } from "./file-storage.js";
 
@@ -60,11 +61,11 @@ export function createBlobFileStorage(tokenOverride?: string): FileStorage {
    * `BLOB_STORE_ID`.
    */
   function resolveAuth(): { token?: string } {
-    const token = tokenOverride ?? PRODUCT_CONFIG.storage.blobToken;
-    if (token) return { token };
-    if (PRODUCT_CONFIG.storage.blobStoreId) return {};
-    throw new AppError("KDL-BLOB-001");
+    const auth = resolveBlobAuth(tokenOverride);
+    if (!auth) throw new AppError("KDL-BLOB-001");
+    return auth;
   }
+
 
   async function store(bytes: Uint8Array, meta: FileMeta): Promise<{ storagePath: string; contentHash: string }> {
     const auth = resolveAuth();

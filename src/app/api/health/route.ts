@@ -37,6 +37,7 @@
 import { list } from "@vercel/blob";
 import { resolveChatProvider } from "../../../lib/chat/model.js";
 import { PRODUCT_CONFIG } from "../../../lib/config.js";
+import { resolveBlobAuth } from "../../../lib/storage/blob-auth.js";
 import { embedQuery } from "../../../lib/embeddings/gemini.js";
 import { ERROR_CODES, type ErrorCode } from "../../../lib/errors.js";
 import { requireAdmin } from "../../../lib/auth/session.js";
@@ -141,12 +142,12 @@ function checkChatProvider(): CheckResult {
  * visible on the very next poll, not for up to 60 seconds.
  */
 async function checkBlob(): Promise<CheckResult> {
-  const token = PRODUCT_CONFIG.storage.blobToken;
-  if (!token) {
+  const auth = resolveBlobAuth();
+  if (!auth) {
     return { ok: false, code: "KDL-BLOB-001" };
   }
   try {
-    await list({ token, limit: 1 });
+    await list({ ...auth, limit: 1 });
     return { ok: true };
   } catch {
     return { ok: false, code: "KDL-BLOB-004" };
