@@ -242,7 +242,14 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   if (authenticated) {
-    (body.database as Record<string, unknown>).path = PRODUCT_CONFIG.paths.databasePath;
+    // Local mode only. `paths.databasePath` is the SQLite file location and means nothing on a
+    // Postgres deployment — reporting it there made this endpoint contradict itself in the same
+    // response, pairing `"path": "./data/kyzerdocs.db"` with `"label": "Postgres (Neon)"`. Not
+    // buyer-visible (the panel never rendered it), but this endpoint exists to be believed during
+    // support, and S-5's rule is to omit rather than state something untrue (03-UAT F9).
+    if (!PRODUCT_CONFIG.cloudMode) {
+      (body.database as Record<string, unknown>).path = PRODUCT_CONFIG.paths.databasePath;
+    }
     (body.chatProvider as Record<string, unknown>).provider = resolveChatProvider();
     body.corpus = databaseResult.counts ?? { total: 0, ready: 0, failed: 0 };
     body.lastFailedDocument = await getLastFailedDocument();

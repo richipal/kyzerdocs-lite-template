@@ -281,3 +281,26 @@ describe("GET /api/health — blob probe (plan 03-10)", () => {
     expect(listMock).not.toHaveBeenCalled();
   });
 });
+
+describe("database.path is local-mode only (S-5)", () => {
+  it("omits the SQLite path in cloud mode rather than reporting a file that does not exist", async () => {
+    // `paths.databasePath` is the SQLite file location. On a Postgres deployment it is meaningless,
+    // and reporting it made one response contradict itself: "path": "./data/kyzerdocs.db" alongside
+    // "label": "Postgres (Neon)". Never rendered to the buyer, but this endpoint exists to be
+    // believed during support, and a diagnostic asserting a false location sends whoever reads it
+    // looking for the wrong database (03-UAT F9).
+    process.env.GEMINI_API_KEY = "fake-recognisable-test-key-zzz999";
+    process.env.DATABASE_URL = "postgresql://u:p@ep-fake-test.us-east-2.aws.neon.tech/neondb";
+    try {
+      const { GET, createSession } = await loadRoute();
+      const cookie = await authCookieHeader(createSession);
+      const req = new Request("http://localhost/api/health", { method: "GET", headers: { cookie } });
+      const body = await (await GET(req)).json();
+
+      expect(body.driver?.cloudMode).toBe(true);
+      expect(body.database.path).toBeUndefined();
+    } finally {
+      delete process.env.DATABASE_URL;
+    }
+  });
+});
