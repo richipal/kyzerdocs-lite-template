@@ -36,7 +36,7 @@ import { PRODUCT_CONFIG } from "../../../lib/config.js";
 import { createHash } from "node:crypto";
 import { runIngestion } from "../../../lib/ingest/pipeline.js";
 import { validateFileMetadata } from "../../../lib/ingest/validate.js";
-import { storeUpload } from "../../../lib/storage/files.js";
+
 import { getFileStorage, getStorageDriver } from "../../../lib/storage/index.js";
 import { DEFAULT_KB_ID } from "../../../lib/types.js";
 
@@ -87,7 +87,13 @@ async function acquireLocalUpload(req: Request): Promise<AcquiredUpload> {
   validateFileMetadata({ filename: file.name, mimeType: file.type, byteSize });
 
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const { storagePath, contentHash } = await storeUpload(bytes, { filename: file.name, byteSize });
+  // Through the seam even though this is the local multipart branch: the selector resolves to
+  // LocalFileStorage here anyway, and reaching past it is what broke the delete and resume paths.
+  const { storagePath, contentHash } = await getFileStorage().store(bytes, {
+    filename: file.name,
+    mimeType: file.type,
+    byteSize,
+  });
 
   return { filename: file.name, mimeType: file.type, byteSize, bytes, storagePath, contentHash };
 }

@@ -20,7 +20,7 @@ import { embedDocuments } from "../embeddings/gemini.js";
 import { getStorageDriver } from "../storage/index.js";
 import type { StorageDriver } from "../storage/driver.js";
 import type { NewChunk } from "../storage/types.js";
-import { readUpload } from "../storage/files.js";
+import { getFileStorage } from "../storage/index.js";
 import { chunkText } from "./chunk.js";
 import { pageForRange, sectionTitleForRange } from "./locate.js";
 import { parseDocument } from "./parse.js";
@@ -266,7 +266,11 @@ export async function resumeIngestion(jobId: string, deps: IngestionDeps = {}): 
     });
   }
 
-  const bytes = await readUpload(document.storagePath);
+  // Through the seam, not `readUpload` — resuming in cloud mode reads from Blob, and the local
+  // implementation would try to resolve a Blob key inside the local upload directory on a
+  // read-only filesystem. Same defect class as the delete route's (03-UAT F7): a seam exists and a
+  // caller reached past it, which only shows up in the deployment.
+  const bytes = await getFileStorage().read(document.storagePath);
   const meta: FileMeta = {
     filename: document.filename,
     mimeType: document.mimeType,

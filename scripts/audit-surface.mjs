@@ -350,6 +350,42 @@ ${rows}
 }
 
 // ---------------------------------------------------------------------------
+// (f) FileStorage seam — nothing reaches past getFileStorage() to the local impl
+// ---------------------------------------------------------------------------
+
+console.log("\n(f) FileStorage seam (STOR-06)");
+
+/**
+ * `storeUpload`/`readUpload`/`deleteUpload` are the LOCAL filesystem implementation. Importing them
+ * outside `src/lib/storage/` skips the cloud/local selector, so the call works on a developer
+ * machine and throws on a deployment — a Blob key resolved inside a local upload directory on a
+ * read-only filesystem.
+ *
+ * Not hypothetical. Three callers reached past this seam and each was a cloud-mode break: the
+ * delete route (row deleted, blob orphaned, 500 returned after the row was already gone), the
+ * ingest resume path, and the local upload branch. All were invisible locally and to the entire
+ * test suite. Use `getFileStorage()`.
+ */
+const LOCAL_FS_FUNCS = ["storeUpload", "readUpload", "deleteUpload"];
+const seamViolations = [];
+for (const file of walkTsFiles(SRC_ROOT)) {
+  const rel = relative(ROOT, file);
+  if (rel.startsWith(`src${sep}lib${sep}storage${sep}`)) continue;
+  if (rel.endsWith(".test.ts") || rel.endsWith(".test.tsx")) continue;
+  const contents = readFileSync(file, "utf8");
+  for (const fn of LOCAL_FS_FUNCS) {
+    const importRe = new RegExp(`import\\s*\\{[^}]*\\b${fn}\\b[^}]*\\}\\s*from`, "m");
+    if (importRe.test(contents)) seamViolations.push(`${rel} imports ${fn}`);
+  }
+}
+if (seamViolations.length === 0) {
+  console.log("  OK    no file outside src/lib/storage/ imports the local filesystem implementation");
+} else {
+  for (const v of seamViolations) console.log(`  FAIL  ${v} — use getFileStorage() instead`);
+  failures += seamViolations.length;
+}
+
+// ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
 
