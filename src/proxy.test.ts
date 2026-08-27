@@ -50,9 +50,29 @@ describe("proxy /embed/* framing (WIDG-05, D3-12)", () => {
     const res = await proxy(req);
 
     expect(getWidgetConfigMock).toHaveBeenCalledWith("default");
+    // BOTH forms per stored domain. The allowlist stores the bare host (normalizeDomain strips
+    // `www.`) and `isOriginAllowed` strips `www.` from the incoming Origin, so the API accepts
+    // www requests. CSP frame-ancestors does no normalisation, so emitting only the bare form made
+    // the browser refuse to frame the widget on any www site while the API said the origin was
+    // fine — a contradiction the buyer could not act on (03-UAT F13).
     expect(res.headers.get("content-security-policy")).toBe(
-      "frame-ancestors https://example.com https://shop.example.com",
+      "frame-ancestors https://example.com https://www.example.com " +
+        "https://shop.example.com https://www.shop.example.com",
     );
+  });
+
+  it("frames a www. host from a bare stored domain — the case that blocked a real site", async () => {
+    getWidgetConfigMock.mockResolvedValue(makeConfig({ allowedDomains: ["kyzer.ai"] }));
+    const res = await proxy(new NextRequest(new URL("http://localhost/embed/default")));
+    const csp = res.headers.get("content-security-policy") ?? "";
+    expect(csp).toContain("https://kyzer.ai");
+    expect(csp).toContain("https://www.kyzer.ai");
+  });
+
+  it("still refuses everything on an empty allowlist", async () => {
+    getWidgetConfigMock.mockResolvedValue(makeConfig({ allowedDomains: [] }));
+    const res = await proxy(new NextRequest(new URL("http://localhost/embed/default")));
+    expect(res.headers.get("content-security-policy")).toBe("frame-ancestors 'none'");
   });
 
   it("yields frame-ancestors 'none' for an empty allowlist", async () => {

@@ -41,10 +41,26 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     // at all, which is what makes UI-SPEC's "origin blocked: nothing renders" state real. D3-12:
     // this header is a real security boundary (unlike the Origin-header check in the API routes,
     // which is spoofable) — the browser enforces frame-ancestors itself.
+    // BOTH the bare host and its `www.` form, for every stored domain.
+    //
+    // `normalizeDomain` strips a leading `www.`, so the allowlist stores `example.com` and
+    // `isOriginAllowed` strips `www.` from the incoming Origin before comparing — meaning the API
+    // accepts a request from `https://www.example.com`. CSP `frame-ancestors` performs no such
+    // normalisation: the browser treats `https://example.com` and `https://www.example.com` as
+    // different origins and refuses to frame anything not listed exactly.
+    //
+    // Emitting only the stored form made the two mechanisms disagree — the API said yes and the
+    // browser said no — so the widget was blocked on every `www.` site with a console error the
+    // buyer could do nothing about, while their allowlist looked correct. Most real sites serve on
+    // `www.`, so this blocked the common case (03-UAT F13).
+    const frameAncestors = config.allowedDomains.flatMap((domain) => [
+      `https://${domain}`,
+      `https://www.${domain}`,
+    ]);
     const directive =
-      config.allowedDomains.length === 0
+      frameAncestors.length === 0
         ? "frame-ancestors 'none'"
-        : `frame-ancestors ${config.allowedDomains.map((domain) => `https://${domain}`).join(" ")}`;
+        : `frame-ancestors ${frameAncestors.join(" ")}`;
     response.headers.set("Content-Security-Policy", directive);
     return response;
   }
