@@ -18,7 +18,20 @@ type Position = "bottom-right" | "bottom-left";
 
 const DEFAULT_ACCENT = "#0E4F4A";
 const READY_TIMEOUT_MS = 5000;
-const MOBILE_QUERY = "(max-width: 480px)";
+/**
+ * Viewport takeover applies when the viewport is narrow OR SHORT, not narrow alone.
+ *
+ * A phone in landscape is wide and short — an iPhone 15 is 852x393 — so a width-only query does not
+ * match, and the widget fell back to the desktop panel: a fixed 600px-tall box in a 393px-tall
+ * viewport, anchored bottom-right, which pushes the header holding the close button off the top of
+ * the screen. A visitor on a stranger's website could not see the questions, could not see the X,
+ * and had no way to dismiss it (WIDG-03, 03-UAT F15).
+ *
+ * `max-height` also covers a short desktop window, where a clipped 600px panel has the same
+ * problem for the same reason. Taking over a viewport too short to hold the panel is correct in
+ * both cases.
+ */
+const MOBILE_QUERY = "(max-width: 480px), (max-height: 480px)";
 // Exactly this string, no allow-top-navigation / allow-popups / allow-modals (T-03-04-01).
 const SANDBOX_VALUE = "allow-scripts allow-same-origin allow-forms";
 // Max 32-bit signed int — the ceiling every major embeddable-widget SDK converges on.

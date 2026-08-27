@@ -1116,7 +1116,10 @@ button[data-citation]:hover:not(:disabled) {
 
 .widget-panel--mobile .widget-panel__close { width: 44px; height: 44px; }
 
-@media (max-width: 480px) {
+/* Narrow OR short — must stay in lockstep with MOBILE_QUERY in kyzer-lite-widget.ts. A landscape
+   phone is wide and short (852x393), so a width-only query left the desktop panel clipped with its
+   close button off-screen (03-UAT F15). */
+@media (max-width: 480px), (max-height: 480px) {
   .widget-panel__header {
     flex-basis: auto;
     height: auto;

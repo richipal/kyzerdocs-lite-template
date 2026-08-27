@@ -297,3 +297,27 @@ describe("widget isolation (UI-SPEC Isolation table)", () => {
     expect(getComputedStyle(button).display).toBe("none");
   });
 });
+
+describe("viewport takeover query (WIDG-03)", () => {
+  it("triggers on a SHORT viewport, not only a narrow one", async () => {
+    // A landscape phone is wide and short — an iPhone 15 is 852x393. A width-only query does not
+    // match it, so the widget fell back to the desktop panel: a fixed 600px box in a 393px viewport,
+    // anchored bottom-right, pushing the header holding the close button off the top of the screen.
+    // A visitor on someone else's site could see neither the questions nor the X, and had no way to
+    // dismiss it (03-UAT F15).
+    //
+    // This asserts the QUERY STRING rather than behaviour, deliberately. The suite's matchMedia
+    // stub returns a boolean the test chooses, so it never evaluates the query — which is precisely
+    // why every existing takeover test passed while landscape was broken. jsdom cannot evaluate
+    // media queries, so pinning the contract is the only thing testable here.
+    await renderWidget();
+
+    const queries = (window.matchMedia as unknown as { mock: { calls: string[][] } }).mock.calls.map(
+      (c) => c[0],
+    );
+    expect(queries.length).toBeGreaterThan(0);
+    const query = queries[0];
+    expect(query).toContain("max-width: 480px");
+    expect(query).toContain("max-height: 480px");
+  });
+});
