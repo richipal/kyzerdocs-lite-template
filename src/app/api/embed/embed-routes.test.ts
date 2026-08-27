@@ -404,3 +404,24 @@ describe("GET /api/embed/{kbId}/starters — same three guards, then the reused 
     expect(generateObjectMock).toHaveBeenCalledTimes(2); // cache miss after generation bump
   });
 });
+
+describe("GET /api/embed/{kbId}/starters — same-origin has no Origin header", () => {
+  it("serves starters when Origin is absent, because that IS the widget's own fetch", async () => {
+    // The embed page fetches its own starters from inside the iframe. Browsers omit Origin on
+    // same-origin GETs and send it on same-origin POSTs — which is exactly why the chat route
+    // worked while this one returned 403 and the widget opened with no suggested questions
+    // (03-UAT F14). A request arriving here with no Origin is this page's own fetch or a
+    // non-browser client; the rate limiter is the backstop for the latter, per D3-12.
+    // No origin header at all — the shape a browser actually sends for a same-origin GET.
+    const req = new Request("http://localhost/api/embed/default/starters");
+    const res = await startersGET(req, chatContext());
+    expect(res.status).not.toBe(403);
+  });
+
+  it("still refuses a real, foreign Origin", async () => {
+    // The guard must keep doing its job — allowing absent must not become allowing anything.
+    const res = await startersGET(startersRequest({ origin: "https://evil-example.com" }), chatContext());
+    expect(res.status).toBe(403);
+    expect((await res.json()).code).toBe("KDL-WIDG-001");
+  });
+});

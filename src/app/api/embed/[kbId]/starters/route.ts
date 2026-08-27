@@ -76,9 +76,20 @@ export async function GET(
   }
 
   // Guard 2: origin allowlist — convenience filter only (D3-12), never the real control.
+  //
+  // An ABSENT Origin header is same-origin, and must be allowed. This endpoint's only browser
+  // caller is the embed page fetching its own starters from inside the iframe, and browsers omit
+  // Origin on same-origin GETs — they send it on same-origin POSTs, which is why the chat route
+  // worked while this one 403'd and the widget opened with no suggested questions (03-UAT F14).
+  //
+  // Rejecting the empty string here also meant `isOriginAllowed("")` was doing the deciding, and
+  // it correctly refuses an unparseable origin — the guard was working exactly as written against
+  // a request it was never meant to judge. What reaches this line with no Origin is either this
+  // page's own fetch or a non-browser client, and the latter is what guard 3's rate limit is for:
+  // D3-12 is explicit that the allowlist is a convenience filter and the limiter is the backstop.
   const config = await getWidgetConfig(kbId);
-  const origin = req.headers.get("origin") ?? "";
-  if (!isOriginAllowed(origin, config.allowedDomains)) {
+  const origin = req.headers.get("origin");
+  if (origin !== null && !isOriginAllowed(origin, config.allowedDomains)) {
     return Response.json(new AppError("KDL-WIDG-001").toJSON(), { status: 403 });
   }
 
