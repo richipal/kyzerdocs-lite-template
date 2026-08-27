@@ -49,9 +49,16 @@ export default function WidgetPageClient({
   cloudMode,
 }: WidgetPageClientProps) {
   const [form, setForm] = useState<WidgetConfig>(initialConfig);
+  /** The last state actually persisted, so the page can tell the buyer whether what they are
+   * looking at is saved. Without this, adding an allowed domain showed a new row in the list and
+   * looked done — the row is only form state, and navigating away discarded it silently. Every
+   * control here is the same: nothing reaches the server until Save (03-UAT F11). */
+  const [savedConfig, setSavedConfig] = useState<WidgetConfig>(initialConfig);
   const [hasBeenConfigured, setHasBeenConfigured] = useState(initialHasBeenConfigured);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<AppErrorJSON | null>(null);
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(savedConfig);
 
   function patch(fields: Partial<WidgetConfig>) {
     setForm((prev) => ({ ...prev, ...fields }));
@@ -71,7 +78,11 @@ export default function WidgetPageClient({
         setSaveError(body as AppErrorJSON);
         return;
       }
+      // Both, from the SERVER's response rather than from `form` — the server is what normalises
+      // and validates, so echoing its result is what makes "saved" mean saved. Setting only `form`
+      // would leave the page permanently dirty against a stale baseline.
       setForm(body as WidgetConfig);
+      setSavedConfig(body as WidgetConfig);
       setHasBeenConfigured(true);
     } catch {
       setSaveError(GENERIC_SAVE_FAILURE);
@@ -93,11 +104,16 @@ export default function WidgetPageClient({
           type="button"
           className="btn btn-primary"
           onClick={() => void handleSave()}
-          disabled={saving}
+          disabled={saving || !isDirty}
           data-testid="save-widget-settings"
         >
           {saving ? "Saving…" : "Save widget settings"}
         </button>
+        {isDirty && !saving ? (
+          <p className="widget-page__unsaved" data-testid="unsaved-changes">
+            Unsaved changes — nothing is live until you save.
+          </p>
+        ) : null}
         {saveError ? (
           <p role="alert" className="widget-page__save-error" data-testid="save-error">
             <span data-error-code={saveError.code}>{saveError.code}</span>: {saveError.message} {saveError.action}

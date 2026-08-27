@@ -1364,3 +1364,12 @@ button[data-citation]:hover:not(:disabled) {
 /* ---------- AppShell sidebar branding (ADMIN-04) ---------- */
 
 .sidebar__logo--image { object-fit: cover; }
+
+/* Unsaved-changes note on the Widget screen. Muted, not alarming — this is a normal state, not an
+   error; it exists because adding an allowed domain showed a row in the list and looked done while
+   nothing had reached the server (03-UAT F11). */
+.widget-page__unsaved {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
