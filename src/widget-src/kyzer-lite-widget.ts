@@ -103,8 +103,30 @@ class WidgetInstance {
 
   // --- construction helpers ---------------------------------------------------------------
 
+  /**
+   * Takeover applies when the viewport is too small to hold the desktop panel in EITHER dimension.
+   *
+   * Measured directly rather than trusting `matchMedia` alone. A real landscape phone still
+   * rendered the desktop panel after the media query was widened to include `max-height`, with the
+   * launcher visible beside an open panel — proof `isMobile` was false on a viewport that is
+   * demonstrably short. Whatever the cause (a stale cached bundle, a host page's zoom, a browser
+   * quirk), the panel's own dimensions are the thing that actually matters: a 380x600 box does not
+   * fit a 393px-tall viewport, and the top of it — the header holding the close button — is what
+   * goes off-screen (WIDG-03, 03-UAT F15).
+   *
+   * `matchMedia` is still consulted so an explicit match wins, but a viewport smaller than the
+   * panel is treated as mobile regardless. Comparing against PANEL_WIDTH/PANEL_HEIGHT rather than a
+   * separate magic number means the two can never drift apart.
+   */
   private readMobileMatch(): boolean {
-    return window.matchMedia(MOBILE_QUERY).matches;
+    const tooNarrow = window.innerWidth <= PANEL_WIDTH + LAUNCHER_OFFSET * 2;
+    const tooShort = window.innerHeight <= PANEL_HEIGHT + PANEL_BOTTOM_DESKTOP;
+    if (tooNarrow || tooShort) return true;
+    try {
+      return window.matchMedia(MOBILE_QUERY).matches;
+    } catch {
+      return false;
+    }
   }
 
   private buildIframe(): HTMLIFrameElement {
@@ -222,9 +244,23 @@ class WidgetInstance {
   }
 
   private registerViewportListener(): void {
+    // `resize` and `orientationchange` as well as the media query. Rotating a phone fires resize
+    // reliably; the media-query `change` event only fires when the match FLIPS, so once the query
+    // covers both orientations it stops firing on rotation at all — and the geometry still has to
+    // be re-applied, because dvh and safe-area insets change even when `isMobile` does not.
+    const reevaluate = (): void => {
+      this.isMobile = this.readMobileMatch();
+      this.applyPanelGeometry(this.iframeContainer);
+      this.applyLauncherOffset(this.launcherContainer);
+      this.applyLauncherOffset(this.launcherButton);
+      this.updateLauncherVisibility();
+    };
+    window.addEventListener("resize", reevaluate);
+    window.addEventListener("orientationchange", reevaluate);
+
     const mql = window.matchMedia(MOBILE_QUERY);
     mql.addEventListener("change", (event) => {
-      this.isMobile = event.matches;
+      this.isMobile = event.matches || this.readMobileMatch();
       this.applyPanelGeometry(this.iframeContainer);
       this.applyLauncherOffset(this.launcherContainer);
       this.applyLauncherOffset(this.launcherButton);

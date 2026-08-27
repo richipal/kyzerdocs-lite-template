@@ -320,4 +320,30 @@ describe("viewport takeover query (WIDG-03)", () => {
     expect(query).toContain("max-width: 480px");
     expect(query).toContain("max-height: 480px");
   });
+
+  it("takes over a SHORT viewport even when matchMedia reports no match", async () => {
+    // The real failure: on a landscape phone the desktop panel rendered anyway, with the launcher
+    // still visible beside an open panel — proof isMobile was false on a viewport demonstrably too
+    // short for a 600px box. Whatever the cause (stale bundle, host zoom, browser quirk), the
+    // panel's own dimensions are what matter, so detection measures the viewport rather than
+    // trusting the query alone (03-UAT F15).
+    Object.defineProperty(window, "innerWidth", { value: 852, configurable: true });
+    Object.defineProperty(window, "innerHeight", { value: 393, configurable: true });
+    await renderWidget({ mobile: false }); // matchMedia deliberately says NO
+
+    const container = getIframeContainer();
+    expect(container?.style.getPropertyValue("height")).toBe("100dvh");
+    expect(container?.style.getPropertyValue("inset")).toMatch(/^0(px)?$/);
+  });
+
+  it("keeps the desktop panel on a viewport that genuinely fits it", async () => {
+    // The guard must not swallow desktop: a fix that always takes over would pass the test above
+    // while destroying the desktop experience.
+    Object.defineProperty(window, "innerWidth", { value: 1440, configurable: true });
+    Object.defineProperty(window, "innerHeight", { value: 900, configurable: true });
+    await renderWidget({ mobile: false });
+
+    const container = getIframeContainer();
+    expect(container?.style.getPropertyValue("height")).toBe("600px");
+  });
 });
