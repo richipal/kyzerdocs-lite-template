@@ -44,11 +44,21 @@ export default function AllowedDomainsSection({ domains, onChange }: AllowedDoma
       setValidationError("Enter a domain, like example.com — not a full URL.");
       return;
     }
+    if (domains.includes(normalized)) {
+      // Silently doing nothing here is what made this look broken: adding `www.kyzer.ai` when
+      // `kyzer.ai` is already listed normalises to the same host, so the click had no visible
+      // effect and no explanation. The buyer reasonably concludes a second domain cannot be added
+      // (03-UAT F12). Say what happened, and say why the two forms are the same entry.
+      setValidationError(
+        normalized === draft.trim().toLowerCase()
+          ? `${normalized} is already on the list.`
+          : `${normalized} is already on the list — www. and non-www are the same site here.`,
+      );
+      return;
+    }
     setValidationError(null);
     setDraft("");
-    if (!domains.includes(normalized)) {
-      onChange([...domains, normalized]);
-    }
+    onChange([...domains, normalized]);
   }
 
   function handleRemove(domain: string, index: number) {

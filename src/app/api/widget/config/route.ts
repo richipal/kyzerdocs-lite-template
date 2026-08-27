@@ -85,7 +85,14 @@ export async function PUT(req: Request): Promise<Response> {
           message: `"${rawDomain}" is not a valid domain. Enter a domain, like example.com — not a full URL.`,
         });
       }
-      normalizedDomains.push(normalized);
+      // Dedupe AFTER normalising, not before. Two different inputs collapse to one host —
+      // `kyzer.ai` and `www.kyzer.ai` both normalise to `kyzer.ai` — so a pre-normalisation
+      // uniqueness check sees two distinct strings and stores the same host twice. The client
+      // deduped and this route did not, so an API caller (or a client bug) could persist
+      // duplicates that then render as repeated rows (03-UAT F12).
+      if (!normalizedDomains.includes(normalized)) {
+        normalizedDomains.push(normalized);
+      }
     }
 
     const validated = { ...parsed.data, allowedDomains: normalizedDomains };

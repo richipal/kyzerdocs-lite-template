@@ -4,6 +4,17 @@ This guide covers putting a chat widget for your knowledge base on your own webs
 your deployment is already live — if you have not deployed yet, start with
 [docs/DEPLOY.md](./DEPLOY.md).
 
+
+### One entry covers www and non-www
+
+Add `yourshop.com` and visitors arriving at `www.yourshop.com` are covered too — the two are treated
+as the same site. You do not need to add both, and if you try, the screen will tell you it is already
+listed rather than adding a second row.
+
+Everything else must match exactly. `shop.yourshop.com` is a different site and needs its own entry,
+and there are no wildcards — that is deliberate, so a lookalike domain like `evil-yourshop.com` can
+never match `yourshop.com`.
+
 ## Where to find your install snippet
 
 Sign in to your deployment and open the **Widget** screen. Once you have saved your widget
