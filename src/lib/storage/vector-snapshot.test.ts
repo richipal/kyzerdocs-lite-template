@@ -215,3 +215,45 @@ describe("vector-snapshot — readVectorSnapshot/writeVectorSnapshot/deleteVecto
     expect(blobMocks.del).not.toHaveBeenCalled();
   });
 });
+
+describe("snapshot sweep removes SKIPPED generations, not just the previous one", () => {
+  it("deletes every non-current generation for the kb", async () => {
+    // Deleting only `generation - 1` leaked in practice. The generation counter advances on every
+    // corpus change but a snapshot is written only when a rebuild happens, so generations are
+    // routinely skipped and each skipped one leaves an object nothing deletes. A real deployment
+    // held snapshots for generations 1, 10, 23 and 63 with only 63 current — 62MB of dead objects
+    // at 20k chunks, growing on the buyer's storage bill (03-UAT F10).
+    const deleted: string[] = [];
+    vi.resetModules();
+    vi.doMock("@vercel/blob", () => ({
+      put: vi.fn(async () => ({ pathname: "vector-snapshots/default/64.bin", url: "u/64" })),
+      get: vi.fn(),
+      del: vi.fn(async (url: string) => { deleted.push(url); }),
+      list: vi.fn(async () => ({
+        blobs: [
+          { pathname: "vector-snapshots/default/1.bin", url: "u/1", size: 10 },
+          { pathname: "vector-snapshots/default/23.bin", url: "u/23", size: 10 },
+          { pathname: "vector-snapshots/default/64.bin", url: "u/64", size: 10 },
+        ],
+      })),
+    }));
+    vi.doMock("./blob-auth.js", () => ({ resolveBlobAuth: () => ({ token: "t" }) }));
+
+    const { writeVectorSnapshot } = await import("./vector-snapshot.js");
+    await writeVectorSnapshot("default", {
+      generation: 64,
+      dim: 768,
+      chunkIds: ["a"],
+      flatCorpus: new Float32Array(768),
+    });
+
+    // Both skipped generations go, and the one just written stays.
+    expect(deleted).toContain("u/1");
+    expect(deleted).toContain("u/23");
+    expect(deleted).not.toContain("u/64");
+
+    vi.doUnmock("@vercel/blob");
+    vi.doUnmock("./blob-auth.js");
+    vi.resetModules();
+  });
+});

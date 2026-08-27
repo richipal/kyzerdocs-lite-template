@@ -33,7 +33,7 @@
  * rebuild into a failed request.
  */
 
-import { del, get, put } from "@vercel/blob";
+import { del, get, list, put } from "@vercel/blob";
 import { PRODUCT_CONFIG } from "../config.js";
 import { resolveBlobAuth } from "./blob-auth.js";
 
@@ -140,12 +140,19 @@ export function decodeVectorSnapshot(buf: Buffer): VectorSnapshotPayload {
 
 /**
  * Writes `payload` to this kb+generation's snapshot object (a NEW key every generation bump, per
- * this file's own key-includes-generation contract). Best-effort deletes the immediately-previous
- * generation's object afterward (`generation - 1`) so a kb re-ingested many times over its
- * lifetime does not accumulate one orphaned Blob object per generation forever — deliberately not
- * awaited-and-required: a failed cleanup leaves one harmless extra object (never served, since
- * reads always target the CURRENT generation's exact key), not a correctness problem. The main
- * write itself never throws either — a failed write is a lost optimization, not a failed rebuild,
+ * this file's own key-includes-generation contract), then best-effort deletes EVERY other
+ * generation's object for this kb.
+ *
+ * Deleting only `generation - 1` was not enough and leaked in practice. The generation counter
+ * advances on every corpus change, but a snapshot is only written when a rebuild actually happens —
+ * so generations are routinely skipped, and each skipped one leaves an object nothing will ever
+ * delete. A real deployment was found holding snapshots for generations 1, 10, 23 and 63 with only
+ * 63 current: 62MB of dead objects at 20k chunks, growing silently on the buyer's storage bill
+ * (03-UAT F10).
+ *
+ * Still best-effort and never awaited-into-correctness: a failed cleanup leaves harmless extra
+ * objects (never served, since reads target the CURRENT generation's exact key), not a bug. The
+ * main write never throws either — a failed write is a lost optimization, not a failed rebuild,
  * since the caller already has the correct in-memory result from the Postgres rebuild that just
  * completed.
  */
@@ -166,12 +173,19 @@ export async function writeVectorSnapshot(kbId: string, payload: VectorSnapshotP
     // Postgres cost again, which is exactly today's (pre-snapshot) behavior.
     return;
   }
-  if (payload.generation > 0) {
-    try {
-      await del(snapshotPathname(kbId, payload.generation - 1), { ...auth });
-    } catch {
-      // best-effort — an orphaned prior-generation object is harmless, never read.
-    }
+  try {
+    // List this kb's snapshots and drop everything that is not the generation just written. A
+    // prefix list is one extra round trip on a path that already moved tens of megabytes, and it
+    // is the only way to catch generations that were skipped rather than superseded.
+    const existing = await list({ prefix: `vector-snapshots/${encodeURIComponent(kbId)}/`, ...auth });
+    const keep = snapshotPathname(kbId, payload.generation);
+    await Promise.all(
+      existing.blobs
+        .filter((b) => b.pathname !== keep)
+        .map((b) => del(b.url, { ...auth }).catch(() => undefined)),
+    );
+  } catch {
+    // best-effort — a failed sweep leaves harmless extra objects, never read.
   }
 }
 
