@@ -62,7 +62,12 @@ const CHECKS: Array<{ key: keyof Pick<HealthResponse, "database" | "apiKey" | "e
  * mode) — local mode shows the original four rows unchanged, cloud mode shows five. The row's
  * `data-ok` reflects a REAL server-side reachability check, never a static "OK".
  */
-export default function HealthPanel() {
+/** `refreshKey` — bump it to force a re-read. The panel's numbers describe the corpus (document
+ * count, chunk count, vectors in memory), so they go stale the moment a document is added or
+ * removed. Without this it fetched once on mount and then only ever updated if the buyer noticed
+ * the Refresh button, which meant a freshly uploaded document's chunks were missing from a panel
+ * sitting next to the row that had just finished ingesting it (03-UAT F8). */
+export default function HealthPanel({ refreshKey = 0 }: { refreshKey?: number }) {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [vectorsInMemory, setVectorsInMemory] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +98,7 @@ export default function HealthPanel() {
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+  }, [refresh, refreshKey]);
 
   return (
     <section className="panel panel--rail" data-testid="health-panel">

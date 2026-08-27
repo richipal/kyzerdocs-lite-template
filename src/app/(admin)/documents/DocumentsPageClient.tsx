@@ -69,6 +69,9 @@ export default function DocumentsPageClient({ cloudMode }: DocumentsPageClientPr
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [uploadErrors, setUploadErrors] = useState<Array<{ filename: string; error: AppErrorJSON }>>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
+  /** Bumped whenever the corpus changes, so `HealthPanel`'s counts follow the document list instead
+   * of showing whatever was true when the page first loaded. */
+  const [corpusVersion, setCorpusVersion] = useState(0);
   const jobIdByDocumentId = useRef<Map<string, string>>(new Map());
   const dropzoneRef = useRef<UploadDropzoneHandle>(null);
 
@@ -108,6 +111,21 @@ export default function DocumentsPageClient({ cloudMode }: DocumentsPageClientPr
     return () => clearInterval(interval);
   }, [shouldPollList, fetchDocuments]);
 
+  /* A document can also reach a terminal state through the LIST POLL rather than through an
+   * upload's own callback — that is the whole point of the poll, and it is the path local mode and
+   * any future async ingestion take. Watching the settled-document signature covers both routes, so
+   * the health panel follows the corpus however it changed rather than only when this tab happened
+   * to be the one that uploaded. */
+  const settledSignature = documents
+    .filter((d) => !isNonTerminal(d.status))
+    .map((d) => `${d.id}:${d.status}:${d.chunkCount}`)
+    .join("|");
+
+  useEffect(() => {
+    if (!loaded) return;
+    setCorpusVersion((v) => v + 1);
+  }, [settledSignature, loaded]);
+
   const handleUploadStarted = useCallback(() => {
     setUploadingCount((count) => count + 1);
   }, []);
@@ -116,7 +134,7 @@ export default function DocumentsPageClient({ cloudMode }: DocumentsPageClientPr
     (resolution: UploadResolution) => {
       jobIdByDocumentId.current.set(resolution.documentId, resolution.jobId);
       setUploadingCount((count) => Math.max(0, count - 1));
-      void fetchDocuments();
+      void fetchDocuments().then(() => setCorpusVersion((v) => v + 1));
     },
     [fetchDocuments],
   );
@@ -139,6 +157,7 @@ export default function DocumentsPageClient({ cloudMode }: DocumentsPageClientPr
       if (res.status === 204) {
         setDocuments((prev) => prev.filter((doc) => doc.id !== id));
         jobIdByDocumentId.current.delete(id);
+        setCorpusVersion((v) => v + 1);
       }
     } finally {
       setDeletingId(null);
@@ -214,7 +233,7 @@ export default function DocumentsPageClient({ cloudMode }: DocumentsPageClientPr
               </div>
             </section>
 
-            <HealthPanel />
+            <HealthPanel refreshKey={corpusVersion} />
 
             <p className="docs__footnote">Scanned PDFs without a text layer are skipped. Re-upload them with OCR applied.</p>
           </div>
